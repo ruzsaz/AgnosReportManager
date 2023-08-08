@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xml:lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+  <h:head>
+    <meta charset="UTF-8" />
+    <meta name="google" content="notranslate" />
+    <meta http-equiv="Content-Language" content="en_US" />
+    <title>Agnos report editor</title>
+    <c:set var="isHacked" value="#{!login.isPermitted('REPORTADMIN', true)}" scope="request" />
+  </h:head>
+
+  <h:body style="background: black; opacity: 0">
+
+    <ui:include src="header.xhtml" />      
+
+    <!-- Nincs jogosultsága üzenet -->
+    <h2>
+      <h:outputText rendered="#{isHacked}" styleClass="centeredContent" value="Forbidden area ..." />
+    </h2>
+    <h3>
+      <p:link rendered="#{isHacked}" styleClass="centeredContent" value="Back to the start page" outcome="/index.xhtml" />
+    </h3>    
+
+
+    <h:form id="reportChoserForm" rendered="#{!isHacked}">
+
+      <p:fieldset legend="Modify a report" toggleable="false">
+        <p:dataTable
+            paginatorPosition="bottom"
+            paginator="true"
+            draggableColumns="false"
+            widgetVar="existingReportsTable"
+            rowIndexVar="rowId"
+            id="existingReportsTable"
+            emptyMessage="No reports found"
+            rows="10"          
+            value="#{reportChoserBean.reports}"          
+            selectionMode="single"
+            rowKey="#{item.cubeName}/#{item.name}"
+            selection="#{reportChoserBean.selectedReport}"          
+            var="item"          
+            scrollable="false"
+            styleClass="searchResultTable"
+            stickyHeader="false"
+            rowsPerPageTemplate="10,25,50,100"
+            currentPageReportTemplate="{startRecord}-{endRecord}, total {totalRecords} reports"
+            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+
+          <p:ajax event="rowSelect" listener="#{reportChoserBean.setOldReport()}" process="existingReportsTable" />        
+
+          <p:column            
+              headerText="Report"
+              sortBy="#{item.name}"
+              visible="true"
+              styleClass="borderL tableBorder"
+              width="160">
+            <h:outputLabel value="#{item.name}"/>
+          </p:column>
+          <p:column            
+              headerText="Data cube"
+              sortBy="#{item.cubeName}"
+              visible="true"
+              styleClass="borderR tableBorder blackBorderInsideL"
+              width="160">
+            <h:outputLabel value="#{item.cubeName}"/>
+          </p:column>
+
+        </p:dataTable>      
+
+        <div class="bottomButtonsDiv">
+        </div>        
+
+      </p:fieldset>        
+
+      <p:fieldset legend="Create new" toggleable="false">
+        <p:dataTable
+            paginatorPosition="bottom"
+            paginator="true"
+            draggableColumns="false"
+            widgetVar="NewReportTable"
+            rowIndexVar="rowId"
+            id="newReportTable"
+            emptyMessage="No available base cubes"
+            rows="10"
+            value="#{reportChoserBean.cubeNames}"
+            selectionMode="single"
+            rowKey="#{item}"
+            selection="#{reportChoserBean.selectedCubeName}"
+            var="item"          
+            scrollable="false"
+            styleClass="searchResultTable"
+            stickyHeader="false"
+            rowsPerPageTemplate="10,25,50,100"
+            currentPageReportTemplate="{startRecord}-{endRecord}, total {totalRecords} cubes"
+            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+            >
+
+          <p:ajax event="rowSelect" listener="#{reportChoserBean.setNewReportSource()}" process="newReportTable" />                
+
+          <p:column            
+              headerText="Base cube"
+              sortBy="#{item}"
+              visible="true"
+              styleClass="borderL borderR tableBorder"
+              width="160">
+            <h:outputLabel value="#{item}"/>
+          </p:column>
+
+        </p:dataTable>            
+
+        <div class="bottomButtonsDiv">
+        </div>        
+
+      </p:fieldset>
+
+    </h:form>
+  </h:body>
+</html>

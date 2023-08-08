@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xml:lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+  <h:head>
+    <meta charset="UTF-8" />
+    <meta name="google" content="notranslate" />
+    <meta http-equiv="Content-Language" content="en_US" />
+    <title>Agnos admin: session timout</title>
+    <meta http-equiv="refresh" content="3;url=#{request.contextPath}/index.xhtml" />
+  </h:head>
+
+  <h:body style="background: black; opacity: 0">
+    <ui:include src="header.xhtml" />      
+
+    <h1>Session timeout</h1>
+    <h3>You will be redirected to the login page.</h3>
+    <p><a href="#{request.contextPath}/index.xhtml">Click to go immediately!</a></p>
+
+  </h:body>
+
+</html>

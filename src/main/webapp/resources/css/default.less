@@ -1,0 +1,634 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Sep 14, 2017, 12:32:36 PM
+    Author     : ruzsaz
+*/
+
+/* A toolbar magassága */
+@mainToolbarHeight: 32px;
+@helpControlHeight: @mainToolbarHeight;
+
+/* A háttérszín */
+@baseBackgroundColor: black;
+
+/* A panel, és az arra írás színe */
+@panelWidth: 600px;
+@panelHeight: 400px;
+@panelMargin: 6px;
+@panelBackgroundColor: #343434;
+@panelWriteColor: white;
+@panelWriteValueColor: #c2b211;
+
+
+@borderSize: 0px;
+@panelBorder: @borderSize solid white;
+
+/* A dimenziók színei */
+@oddColor: #555;
+@evenColor: #666;
+@avgColor: #606060;
+@writeOnDimColor: @panelWriteColor;
+
+/* Értékek színei */
+@valWriteColor: black;
+
+@highlightColor: @panelWriteColor;
+@dimHighlightColor: black;
+
+@neutralGrey: #aaaaaa;
+@multiValuesColor: @neutralGrey;
+
+/* Fejléc színei */
+
+@middleGrey0: #a0a0a0;
+@middleGrey: #888888;
+@middleGrey1: #6d6d6d;
+
+@mainToolbarBackgroundColor: @middleGrey;
+@helpBackgroundColor: @middleGrey;
+@mainToolbarShadow: inset 0px -24px 24px -12px rgba(0, 0, 0, 0.2), 3px 3px 9px rgba(0,0,0,0.75);
+@panelShadow: 5px 5px 5px rgba(0,0,0,0.75);
+@helpControlBackgroundGradient: top, @middleGrey0 0%, @middleGrey 30px, @middleGrey1 100%;
+
+@mainToolbarActiveColor: #000000;
+@mainToolbarInactiveColor: #888888;
+@mainToolbarHoverColor: #ffffff;
+
+@firstChildGradient: top, @middleGrey0 0%, @middleGrey 50%;
+@lastChildGradient: top, @middleGrey 50%, @middleGrey1 100%;
+
+
+/* Elemek körüli határ */
+@elementBorderSize: 0px;
+@elementBorderColor: black;
+
+/* A panelváltó és becsukógomb szélessége */
+@stripeWidth: 8px;
+
+@switchColor1: #3397B2;
+@switchColor: #40bddf;
+@switchColor0: #66CAE5;
+@switchGradient: top, @switchColor0 0%, @switchColor1 100%;
+
+@closeColor1: #95AB35;
+@closeColor: #bad642;
+@closeColor0: #C8DE68;
+@closeGradient: top, @closeColor0 0%, @closeColor1 100%;
+
+@scrollbarColor: @switchColor;
+
+@rounding: 10px;
+@scrollbarRounding: 5px;
+@scrollbarWidth: 12px;
+
+@resizedLabelStroke: #000;
+@axisTextColor: #fff;
+
+@axisTextOpacity: 1;
+
+@fontSizeHuge: 20px;
+@fontSizeBig: 16px;
+@fontSizeNormal: 16px;
+@fontSizeSmall: 12px;
+
+@lineSymbolStroke: black;
+
+@valColors: red green blue;
+
+/* A css-es animáció ideje */
+@animDurationText: 0.1s;
+@animDurationHover: 0.0s;
+@appearDuration: 0.2s;
+
+/* Ennyi bejegyzés lehet a legend-ben. */
+@maximalLegendElement: 100;
+
+body {
+    font-family: arial, sans-serif;
+    margin: 0px;
+    padding: 0px;
+    background: @baseBackgroundColor;
+    color: #ffffff;
+}
+
+html, body {
+    height: 100%;
+}
+
+* {
+    color: @panelWriteColor;
+}
+
+form {
+    width: 70em;
+    margin: auto;
+}
+
+fieldset, .ui-dialog {
+    background: @panelBackgroundColor !important;
+    border-radius: @rounding !important;
+    border: @elementBorderSize !important;
+    margin: @panelMargin;
+    margin-bottom: 1em;
+}
+
+legend {
+    border-radius: @rounding !important;
+    padding: .35em .7em .3em .7em !important;
+}
+
+button {
+    padding-top: .08em !important;
+}
+
+.ui-menuitem span {
+    padding-left: 0.3em;
+    padding-right: 0.0em;
+}
+
+::placeholder {
+    color: @middleGrey0;    
+}
+
+::-webkit-input-placeholder {
+    color: @middleGrey0;
+}
+
+::-moz-placeholder {
+    color: @middleGrey0;
+}
+
+.bottomButtonsDiv {
+    margin-top: 1em;
+}
+
+.saveButton, .cancelButton, .deleteReportButton {
+    margin: @panelMargin;
+    margin-bottom: 1em;
+    width: 10em;
+    border-radius: @rounding;
+}
+
+.saveButton > span, .cancelButton > span, .deleteReportButton > span {
+    color: @valWriteColor !important;
+}
+
+.cancelButton, .deleteReportButton {
+    float: right;
+}
+
+.bottomButtonsDiv .saveButton, .bottomButtonsDiv .cancelButton {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-bottom: 0.5em;
+}
+
+.deleteReportButton {
+    margin-top: -0.5em;
+    margin-bottom: 0em;
+    margin-right: 0em;
+}
+
+.textField, .selectOneField {
+    width: 14.5em;
+    box-sizing: border-box;
+}
+
+.textFieldSmall, .selectOneFieldSmall {
+    width: 10em;
+    box-sizing: border-box;
+}
+
+.textFieldMini, .selectOneFieldMini {
+    width: 6em;
+    box-sizing: border-box;
+}
+
+.textFieldMicro, .selectOneFieldMicro {
+    width: 4em;
+    box-sizing: border-box;
+}
+
+.langbutton {
+    width: 6em;
+    box-sizing: border-box;
+    margin-right: 0.3em;
+    margin-bottom: 0.3em;
+}
+
+.textFieldFull {
+    width: 100%;
+    box-sizing: border-box;
+    margin-right: 5px !important;
+}
+
+table.customBorder {
+    border: none;
+    border-collapse: separate !important;
+    border-spacing: 0px;    
+}
+
+.verticalSpacer, .transparentBackground {
+    padding: 0px;
+    height: 1em;
+    background: rgba(0,0,0,0) !important;
+}
+
+tr, td, dl.ui-datalist-data, .ui-datalist-empty-message {
+    border-width: 0px !important;
+    background: @oddColor;
+}
+
+tr {
+    border-width: 0px !important;
+    border-color: @baseBackgroundColor !important;  
+    background: none !important;
+}
+
+.ui-datalist-content {
+    border: 0px;
+}
+
+dl.ui-datalist-data {
+    margin: 0px;
+}
+
+td {
+    position: relative;
+}
+
+.rightButtons {
+    width:1%;
+    padding-right: 0px !important;
+    padding-left: 16px !important;
+}
+
+.rightButtons button.ui-state-disabled {
+    opacity: 0.35;
+}
+
+.levelUnavailable {
+    color: @middleGrey;
+}
+
+.borderL {
+    border-left-width: @elementBorderSize !important;  
+    padding-left: 15px !important;
+}
+
+.borderR:not(.borderB) {
+    border-right-width: @elementBorderSize !important;
+    padding-right: 15px !important;
+    box-shadow: @panelShadow;
+    -webkit-box-shadow: @panelShadow;
+    -moz-box-shadow: @panelShadow;
+}
+
+.borderT {
+    border-top-width: @elementBorderSize !important;
+    padding-top: 15px !important;
+}
+
+.borderB:not(.borderR) {
+    border-bottom-width: @elementBorderSize !important;
+    padding-bottom: 10px !important;
+    box-shadow: @panelShadow;
+    -webkit-box-shadow: @panelShadow;
+    -moz-box-shadow: @panelShadow;
+}
+
+.borderT.borderL {
+    border-top-left-radius: @rounding;
+    padding-left: 15px !important;
+}
+
+.borderT.borderR {
+    border-top-right-radius: @rounding;
+    padding-right: 15px !important;    
+}
+
+.borderB.borderL {
+    border-bottom-left-radius: @rounding;
+    padding-left: 15px !important;
+    padding-bottom: 10px !important;    
+}
+
+.borderB.borderR, tr:last-child .lastBorderB.borderR {
+    border-right-width: @elementBorderSize !important;
+    border-bottom-right-radius: @rounding;
+    padding-right: 15px !important;
+    padding-bottom: 10px !important;
+    box-shadow: @panelShadow;
+    -webkit-box-shadow: @panelShadow;
+    -moz-box-shadow: @panelShadow;
+    z-index: 1;
+}
+
+.searchResultTable .ui-datatable-tablewrapper {
+    overflow: visible;
+}
+
+.searchResultTable .ui-paginator-bottom {
+    z-index: 2;
+    position: relative;
+    box-shadow: @panelShadow;
+    -webkit-box-shadow: @panelShadow;
+    -moz-box-shadow: @panelShadow;
+    border-bottom-left-radius: @rounding;
+    border-bottom-right-radius: @rounding;
+}
+
+.searchResultTable thead th:first-child {
+    border-top-left-radius: @rounding;
+}
+
+.searchResultTable thead th:last-child {
+    border-top-right-radius: @rounding;
+}
+
+.searchResultTable thead th {
+    border-top-width: 0px !important;
+}
+
+.searchResultTable tbody {
+    border-width: 0px !important;
+}
+
+.searchResultTable tr td label {
+    pointer-events: none;
+}
+
+.blackBorderInsideL {
+    border-left: 1px solid #444444 !important;
+}
+
+.borderInsideL {
+    border-left: 1px solid @panelWriteColor !important;
+}
+
+.borderInsideR {
+    border-right: 1px solid @panelWriteColor !important;
+}
+
+.borderInsideT {
+    border-top: 1px solid @panelWriteColor !important;
+}
+
+.borderInsideB {
+    border-bottom: 1px solid @panelWriteColor !important;
+}
+
+.ui-selectonemenu-item {
+    color: @valWriteColor !important;
+}
+
+.centeredCheckBox, .centeredContent {
+    display: table;
+    margin: auto;
+}
+
+.centeredFilledCheckBox {
+    width: 100%
+}
+
+div.ui-editor-toolbar {
+    background: #c4c4c4 -webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0.8)),to(rgba(255,255,255,0)));
+    border: 1px solid #a8a8a8;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+div.ql-container {
+    background: white;
+    box-shadow: inset 0 2px 2px #8f8f8f;
+    -webkit-box-shadow: inset 0 2px 2px #8f8f8f;
+    -moz-box-shadow: inset 0 2px 2px #8f8f8f;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;    
+    font-size: 1em;
+}
+
+.ql-editor * {
+    color: #313131;
+}
+
+.ql-picker-label {
+    color: @panelBackgroundColor;
+}
+
+.ql-picker {
+    font-size: 1em !important;
+}
+
+.ql-picker-item {
+    color: black;
+}
+
+
+/* Dialógus panel */
+.dialog #editUserForm, .dialog .ui-dialog-content, .dialog .ui-dialog-footer,
+.dialog dl.ui-datalist-data, .dialog .ui-datalist-empty-message {
+    background: @panelBackgroundColor;
+    color: @panelWriteColor;
+    border-width: 0px !important;
+
+}
+
+.dialog #editUserForm .ui-dialog-content {
+    background: @oddColor;
+    border-radius: @rounding;
+}
+
+.dialog #editUserForm, .dialog #editRoleForm {
+    width: 42em;
+}
+
+.ui-widget-overlay {
+    opacity: 0.5;
+}
+
+/* Szürke gombok felirata */
+.ui-fieldset-legend, .ui-state-default, .ui-column-title, .ui-paginator-current, .ui-button-text, .ui-dialog-title {
+    color: @panelBackgroundColor !important;
+}
+
+button:focus {
+    outline:0;
+}
+
+.deleteCheckBox * {
+    vertical-align: middle;
+}
+
+.tableBorder {
+    border-bottom: 1px solid black !important;
+}
+
+.searchResultTable tr.ui-state-hover {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+}
+
+/* fejléc */
+form#header {
+    width: 100%;
+}
+
+/* fejléc */
+form#header div.ui-menubar {
+    height: @mainToolbarHeight;
+    padding: 1px;
+    margin-bottom: 16px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: @rounding;
+    border-bottom-right-radius: @rounding;
+    border-width: 0px;
+    background: @mainToolbarBackgroundColor;
+    box-shadow: @mainToolbarShadow;
+    -webkit-box-shadow: @mainToolbarShadow;
+    -moz-box-shadow: @mainToolbarShadow;
+
+}
+
+li.ui-menuitem {
+    margin: 0px;
+}
+
+li.ui-menuitem * {
+    transition: color @animDurationText linear;
+    -webkit-transition: color @animDurationText linear;
+    -moz-transition: color @animDurationText linear;
+    -ms-transition: color @animDurationText linear;
+    -o-transition: color @animDurationText linear;
+}
+
+li.ui-menuitem span {
+    color: @mainToolbarActiveColor;
+}
+
+li.ui-menuitem a.ui-state-hover span {
+    color: @mainToolbarHoverColor;
+}
+
+li.ui-menuitem a.ui-state-hover {
+    background: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    border-width: 1px;
+}
+
+.inlineErrorMessage, .inlineErrorMessage:after {
+    display: unset;
+    background: none;
+    border-width: 0px;    
+    font-style: italic;
+    padding: 0px;
+}
+
+.inlineErrorMessage span {
+
+}
+
+.ui-selectoneradio label {
+    display: inline-block;
+    padding: 0px;
+    width: 1.4em;
+    text-align: center;
+    margin: auto;
+}
+
+.mainForm {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+}
+
+.mainTable {
+    width: 100%;
+    height: 100%;
+    padding:0px;
+    padding-top: @mainToolbarHeight;
+    border-collapse: separate;
+    border-spacing: 1em;
+}
+
+.mainPanel {
+    border-width: @elementBorderSize !important;  
+    padding: 0px !important;
+    background: @baseBackgroundColor;
+    color: @panelWriteColor;
+    border-width: 0px !important;    
+    border-radius: @rounding;
+    width: 40%;
+    margin: 1em;
+}
+
+.mainPanel .mainPanelBackground {
+    position: relative;
+    height: 100%;
+    background: @panelBackgroundColor;
+    border-radius: @rounding;
+}
+
+.mainPanel .mainPanelTitle {    
+    padding: .4em .4em .4em 1em;
+    position: relative;
+    border: 0;
+    display: block;
+    border: 0px;
+    background: #c4c4c4 url(/AgnosReportingServer/javax.faces.resource/images/ui-bg_highlight-soft_100_c4c4c4_1x100.png.xhtml?ln=primefaces-aristo) 50% 50% repeat-x;
+    background: #c4c4c4 linear-gradient(top,rgba(255,255,255,0.8),rgba(255,255,255,0));
+    background: #c4c4c4 -webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0.8)),to(rgba(255,255,255,0)));
+    background: #c4c4c4 -moz-linear-gradient(top,rgba(255,255,255,0.8),rgba(255,255,255,0));
+    color: #333;
+    font-weight: bold;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+    border-top-left-radius: @rounding;
+    border-top-right-radius: @rounding;    
+}
+
+.mainPanel .mainPanelContent {    
+    border-bottom-left-radius: @rounding;
+    border-bottom-right-radius: @rounding;    
+    color: @panelWriteColor;
+    padding: 0.5em;
+}
+
+@placeholderColor: #daa;
+
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color: @placeholderColor;
+    font-style: italic;
+}
+::-webkit-input-placeholder * { /* WebKit, Blink, Edge */
+    color: @placeholderColor;
+    font-style: italic;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: @placeholderColor;   
+    font-style: italic;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: @placeholderColor;   
+    font-style: italic;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: @placeholderColor;
+    font-style: italic;
+}
+::-ms-input-placeholder { /* Microsoft Edge */
+    color: @placeholderColor;
+    font-style: italic;
+}
+::placeholder { /* Most modern browsers support this now. */
+    color: @placeholderColor;
+    font-style: italic;
+}

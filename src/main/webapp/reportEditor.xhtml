@@ -1,0 +1,707 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xml:lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+  <h:head>
+    <meta charset="UTF-8" />
+    <meta name="google" content="notranslate" />
+    <meta http-equiv="Content-Language" content="en_US" />
+    <title>Agnos report editor</title>
+    <c:set var="isHacked" value="#{!login.isPermitted('REPORTADMIN', true)}" scope="request" />
+  </h:head>
+
+  <h:body style="background: black; opacity: 0">
+
+    <ui:include src="header.xhtml" />      
+
+    <!-- Nincs jogosultsága üzenet -->
+    <h2>
+      <h:outputText rendered="#{isHacked}" styleClass="centeredContent" value="Forbidden area ..." />
+    </h2>
+    <h3>
+      <p:link rendered="#{isHacked}" styleClass="centeredContent" value="Back to the start page" outcome="/index.xhtml" />
+    </h3>    
+
+
+    <h:form id="reportForm" rendered="#{!isHacked}">
+
+      <p:fieldset legend="#{reportEditorBean.deleteReport ? 'Are you sure?' : 'Base cube'}" toggleable="false">
+        <p:outputLabel value="#{reportEditorBean.deleteReport ? 'Click \'Save\' to delete report for good...' : reportEditorBean.cubeUniqeName}" escape="false" />
+        <p:commandButton
+            ajax="true"
+            rendered="true"
+            disabled="false"
+            process=":reportForm"
+            value="#{reportEditorBean.deleteReport ? 'Undelete' : 'Delete report'}"
+            update=":reportForm"
+            action="#{reportEditorBean.toggleDelete}"
+            styleClass="deleteReportButton">
+        </p:commandButton>
+      </p:fieldset>
+
+      <p:fieldset id="languageField" legend="Languages" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
+
+        <p:panelGrid style="width:100%" styleClass="customBorder">          
+
+          <p:row>
+            <p:column styleClass="transparentBackground" style="padding: 1ex 0;">
+              <ui:repeat value="#{reportEditorBean.report.languages}" var="lang" varStatus="repLoop">
+                <p:commandButton
+                    ajax="true"
+                    rendered="true"
+                    disabled="#{repLoop.index eq reportEditorBean.editedLang}"
+                    process=":reportForm"
+                    value="#{repLoop.index eq 0 ? 'Default' : (lang eq '' ? '???' : lang)}"
+                    update=":reportForm"
+                    actionListener="#{reportEditorBean.selectLang(repLoop.index)}"
+                    oncomplete="trimDecimalPlaces();"
+                    styleClass="langbutton">
+                </p:commandButton> 
+              </ui:repeat>        
+            </p:column>
+            <p:column styleClass="transparentBackground rightButtons">
+              <p:commandButton
+                  disabled="#{reportEditorBean.editedLang eq 0}"
+                  process=":reportForm"
+                  icon="ui-icon-minus"
+                  ajax="true"
+                  update=":reportForm"
+                  actionListener="#{reportEditorBean.removeEditedLanguage()}"
+                  oncomplete="trimDecimalPlaces();"
+                  title="Delete language '#{reportEditorBean.report.languages[reportEditorBean.editedLang]}'"/>
+            </p:column>
+          </p:row>          
+
+        </p:panelGrid>
+
+        <p:commandButton
+            disabled="false"
+            process=":reportForm"
+            icon="ui-icon-plus"
+            ajax="true"
+            update=":reportForm"
+            actionListener="#{reportEditorBean.addLanguage()}"
+            oncomplete="trimDecimalPlaces();"
+            title="Add a new language"/>  
+
+      </p:fieldset>
+
+
+      <p:fieldset legend="Report" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
+
+        <p:panelGrid style="width:100%" styleClass="customBorder">  
+
+          <p:row>   
+
+            <p:column style="width:1%" styleClass="borderL borderT">
+              <label>Report&nbsp;identifier</label>
+            </p:column>
+            <p:column style="width:1%" styleClass="borderT">
+              <p:inputText 
+                  value="#{reportEditorBean.report.name}"                    
+                  maxlength="50"
+                  styleClass="textField"
+                  disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                  title="A report unique name (if you change this, a new report will be created)" />                
+            </p:column>
+            <p:column rowspan="3" style="width:100%" styleClass="borderT borderB">
+            </p:column>            
+            <p:column style="width:1%" styleClass="borderT">
+              <label>Short&nbsp;label</label>
+            </p:column>
+            <p:column style="width:1%" styleClass="borderR borderT">
+              <p:inputText 
+                  value="#{reportEditorBean.report.captions[reportEditorBean.editedLang]}"
+                  styleClass="textField"
+                  maxlength="200"
+                  placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.captions[0]}"
+                  title="Short label describing the report" />                
+            </p:column>
+
+          </p:row>
+
+          <p:row>
+
+            <p:column style="width:1%" styleClass="borderL">
+              <label>Language&nbsp;code</label>
+            </p:column>
+            <p:column style="width:1%">
+              <p:inputText
+                  id="languageInputText"
+                  value="#{reportEditorBean.report.languages[reportEditorBean.editedLang]}"                    
+                  styleClass="textField"
+                  maxlength="6"
+                  disabled="#{reportEditorBean.editedLang eq 0}"
+                  placeholder="#{reportEditorBean.editedLang eq 0 ? '' : '???'}"
+                  title="Language of the report. The first language acts as default, it's code should be empty." >
+                <p:ajax event="change" process="@this" update=":reportForm:languageField" />
+              </p:inputText>
+            </p:column>
+            <p:column style="width:1%">
+              <label>Longer&nbsp;description</label>
+            </p:column>
+            <p:column style="width:1%" styleClass="borderR">
+              <p:inputText
+                  value="#{reportEditorBean.report.descriptions[reportEditorBean.editedLang]}"
+                  styleClass="textField"
+                  maxlength="2000"
+                  placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.descriptions[0]}"
+                  title="Longer description of the report. Acts as tooltip on the reports' page." />
+            </p:column>
+
+          </p:row>
+
+          <p:row>
+
+            <p:column style="width:1%" styleClass="borderL">
+              <label>Security&nbsp;group</label>
+            </p:column>
+            <p:column style="width:1%">
+              <p:selectOneMenu
+                  value="#{reportEditorBean.report.roleToAccess}"
+                  filter="true"
+                  filterMatchMode="contains"
+                  autoWidth="false"
+                  styleClass="selectOneField"
+                  disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                  title="Only members of this group can access this report.">
+                <f:selectItem itemLabel="-- Chose a group --" itemValue="" itemDisabled="true"/>
+                <f:selectItems value="#{userManagement.roles}" var="role" itemLabel="#{role.name}" itemValue="#{role.name}"/>
+              </p:selectOneMenu>
+            </p:column> 
+            <p:column style="width:5%">
+              <label>Data&nbsp;source&nbsp;name</label>
+            </p:column>
+            <p:column style="width:1%" styleClass="borderR">
+              <p:inputText 
+                  value="#{reportEditorBean.report.datasource[reportEditorBean.editedLang]}"
+                  styleClass="textField"
+                  maxlength="30"
+                  placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.datasource[0]}"
+                  title="Short label of the data source" />                
+            </p:column>
+
+          </p:row>
+
+          <p:row> 
+
+            <p:column colspan="7" style="width:5%" styleClass="borderL borderB borderR">  
+              <label>Long description of the report, appears on the help page.</label>
+              <br />
+              <p:textEditor
+                  id="description_helpHTML"
+                  value="#{reportEditorBean.report.helps[reportEditorBean.editedLang]}"                  
+                  style="width:100%; box-sizing:border-box"                        
+                  placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.helps[0]}"                    
+                  height="160" />
+            </p:column>
+
+          </p:row>
+
+        </p:panelGrid>
+
+      </p:fieldset>
+
+
+      <p:fieldset id="hierarchyField" legend="Dimensions" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
+
+        <p:panelGrid id="hierarchyPanel" style="width:100%" styleClass="customBorder">  
+
+          <ui:repeat value="#{reportEditorBean.report.hierarchies}" var="hierarchy" varStatus="loop">
+
+            <p:row>
+              <p:column colspan="3" styleClass="borderL borderT">
+                <label>Hierarchy</label>
+              </p:column>
+              <p:column colspan="1" style="width:50%" styleClass="borderT">
+                <p:selectOneMenu                          
+                    value="#{hierarchy.hierarchyUniqueName}"                    
+                    filter="false"                    
+                    autoWidth="false"
+                    styleClass="selectOneField"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    title="Hierarchy describing the dimension (chose from the hierarchies in the data cube)">
+                  <f:selectItem itemLabel="-- chose a hierarchy --" itemValue="" itemDisabled="true"/>
+                  <f:selectItems value="#{reportEditorBean.sourceCube.hierarchyHeader}" var="hier" itemLabel="#{hier}" itemValue="#{hier}"/>
+                  <p:ajax listener="#{reportEditorBean.setHierachyFromCube(loop.index)}" update=":reportForm:hierarchyPanel" />
+                </p:selectOneMenu>                  
+              </p:column>
+              <p:column style="width:1%" styleClass="borderT">
+                <label>Top&nbsp;level&nbsp;name</label>
+              </p:column>
+              <p:column style="width:10%" styleClass="borderT">                
+                <p:inputText 
+                    styleClass="textField"
+                    value="#{hierarchy.toplevelStrings[reportEditorBean.editedLang]}"                    
+                    maxlength="200"
+                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : hierarchy.toplevelStrings[0]}"
+                    title="Name of the top level element (eg. Hungary, or 2010-2015)"/>
+              </p:column>
+              <p:column rowspan="3" style="width:10%" styleClass="borderT borderR">
+                <label>Map&nbsp;code</label>
+                <br />
+                <p:inputText 
+                    styleClass="textFieldMini"
+                    value="#{hierarchy.type}"                    
+                    maxlength="20"                    
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    title="Map code to use in this hierarchy. Leave empty if it can not be shown on a map."/>
+              </p:column>                
+              <p:column rowspan="4" styleClass="transparentBackground rightButtons">
+                <p:commandButton
+                    process=":reportForm:hierarchyField"
+                    icon="ui-icon-triangle-1-n"
+                    disabled="#{loop.first or !(reportEditorBean.editedLang eq 0)}"
+                    ajax="true"
+                    update=":reportForm:hierarchyField"
+                    actionListener="#{reportEditorBean.moveHierarchy(loop.index, -1)}"
+                    oncomplete="setTimeout(function(){document.activeElement.blur();}, 50);"
+                    title="Move dimension ahead in the order of appearance"/>
+                <br />
+                <p:commandButton
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    process=":reportForm:hierarchyField"
+                    icon="ui-icon-minus"
+                    ajax="true"
+                    update=":reportForm:hierarchyField"
+                    actionListener="#{reportEditorBean.removeHierarchy(loop.index)}"
+                    title="Delete this dimension"/>
+                <br />
+                <p:commandButton
+                    process=":reportForm:hierarchyField"
+                    icon="ui-icon-triangle-1-s"
+                    disabled="#{loop.last or !(reportEditorBean.editedLang eq 0)}"
+                    ajax="true"
+                    update=":reportForm:hierarchyField"
+                    actionListener="#{reportEditorBean.moveHierarchy(loop.index, 1)}"
+                    oncomplete="setTimeout(function(){document.activeElement.blur();}, 50);"
+                    title="Move dimension back in the order of appearance"/>
+              </p:column>
+            </p:row>
+
+            <p:row>
+              <p:column rowspan="3" style="width:1%" styleClass="borderL borderB">
+              </p:column>             
+              <p:column colspan="1" rowspan="3" style="width:1%" styleClass="borderB">
+                <label style="display:block">Levels</label>                            
+                <p:spinner
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    maxlength="2"
+                    size="1"
+                    id="hierarchiaAllowedDepth"
+                    value="#{hierarchy.allowedDepth}"                                                            
+                    min="1"
+                    max="#{hierarchy.levels.size() - 1}"
+                    title="Number of levels shown in the report">                                        
+                  <p:ajax process="hierarchiaAllowedDepth" update="levelList" />
+                </p:spinner>
+              </p:column>
+              <p:column rowspan="3" colspan="2" styleClass="borderB" style="min-width: 16em">
+                <p:dataList id="levelList" value="#{hierarchy.levels}" var="level" varStatus="loop2" type="definition" emptyMessage="No&nbsp;hierarchy&nbsp;selected" >
+                  <p:outputLabel
+                      value="#{level.depth}:&nbsp;#{loop2.index eq 0 ? '[top&nbsp;level]' : level.nameColumnName}"
+                      style="width:100%"
+                      styleClass="#{loop2.index gt hierarchy.allowedDepth ? 'levelUnavailable' : ''}"
+                      title="Available levels in the hierarchy"/>
+                </p:dataList>
+              </p:column>
+              <p:column>
+                <label>Short&nbsp;label</label>
+              </p:column>
+              <p:column>              
+                <p:inputText 
+                    styleClass="textField"
+                    value="#{hierarchy.captions[reportEditorBean.editedLang]}"                    
+                    maxlength="200"
+                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : hierarchy.captions[0]}"
+                    title="Short label of the dimension"/>
+              </p:column>
+            </p:row>
+
+            <p:row>
+              <p:column>
+                <label>Longer&nbsp;description</label>
+              </p:column>
+              <p:column>                
+                <p:inputText 
+                    styleClass="textField"
+                    value="#{hierarchy.descriptions[reportEditorBean.editedLang]}"                    
+                    maxlength="500"
+                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : hierarchy.descriptions[0]}"
+                    title="Longer description of the dimension. Acts as tooltip in the report."/>
+              </p:column> 
+            </p:row>
+
+            <p:row>
+              <p:column colspan="3" style="padding:0px; height:100%;" styleClass="borderB borderR">
+              </p:column>
+            </p:row>
+
+            <p:row>
+              <p:column colspan="8" styleClass="verticalSpacer">
+              </p:column>
+            </p:row>
+
+          </ui:repeat>
+
+        </p:panelGrid> 
+
+        <p:commandButton
+            disabled="#{!(reportEditorBean.editedLang eq 0)}"
+            process=":reportForm:hierarchyField"
+            icon="ui-icon-plus"
+            ajax="true"
+            update=":reportForm:hierarchyField"
+            actionListener="#{reportEditorBean.addHierarchy()}"
+            title="Add a new dimension"/>              
+
+      </p:fieldset>
+
+      <p:fieldset id="indicatorsField" legend="Indicators" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
+
+        <p:panelGrid id="indicatorsPanel" style="width:100%" styleClass="customBorder">  
+
+          <ui:repeat value="#{reportEditorBean.report.indicators}" var="indicator" varStatus="loop">
+
+            <p:row>   
+              <p:column colspan="9" style="width:100%; padding-bottom:2ex" styleClass="borderL borderT borderR">
+                <label style="padding-right: 1em;">Short&nbsp;label</label>              
+                <p:inputText 
+                    value="#{indicator.captions[reportEditorBean.editedLang]}"                    
+                    styleClass="textField"
+                    style="margin-right:6em"
+                    maxlength="200"
+                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.captions[0]}"
+                    title="Short label of the indicator"/>                              
+                <label style="padding-right: 1em;">Longer&nbsp;description</label>              
+                <p:inputText 
+                    value="#{indicator.descriptions[reportEditorBean.editedLang]}"                    
+                    styleClass="textField"                    
+                    maxlength="500"
+                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.descriptions[0]}"
+                    title="Longer description of the indicator. Acts as tooltip in the report."/>                
+              </p:column>        
+              <p:column rowspan="4" styleClass="transparentBackground rightButtons">
+                <p:commandButton
+                    process=":reportForm:indicatorsField"
+                    icon="ui-icon-triangle-1-n"
+                    disabled="#{loop.first or !(reportEditorBean.editedLang eq 0)}"
+                    ajax="true"
+                    update=":reportForm:indicatorsField"
+                    actionListener="#{reportEditorBean.moveIndicator(loop.index, -1)}"
+                    oncomplete="trimDecimalPlaces(); setTimeout(function(){document.activeElement.blur();}, 50);"
+                    title="Move indicator ahead in the order of appearance"/>
+                <br />
+                <p:commandButton
+                    process=":reportForm:indicatorsField"
+                    icon="ui-icon-minus"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    ajax="true"
+                    update=":reportForm:indicatorsField"
+                    actionListener="#{reportEditorBean.removeIndicator(loop.index)}"
+                    oncomplete="trimDecimalPlaces();"
+                    title="Delete this indicator"/>
+                <br />
+                <p:commandButton
+                    process=":reportForm:indicatorsField"
+                    icon="ui-icon-triangle-1-s"
+                    disabled="#{loop.last or !(reportEditorBean.editedLang eq 0)}"
+                    ajax="true"
+                    update=":reportForm:indicatorsField"
+                    actionListener="#{reportEditorBean.moveIndicator(loop.index, 1)}"
+                    oncomplete="trimDecimalPlaces(); setTimeout(function(){document.activeElement.blur();}, 50);"
+                    title="Move indicator back in the order of appearance"/>
+              </p:column>               
+
+            </p:row>
+
+            <p:row>
+              <p:column rowspan="4" styleClass="borderL borderB" style="width:1em">
+              </p:column>              
+              <p:column styleClass="borderInsideR borderInsideB">
+              </p:column>
+              <p:column styleClass="borderInsideR borderInsideB">
+                <label>data&nbsp;column</label>
+              </p:column>
+              <p:column styleClass="borderInsideR borderInsideB">
+                <label>unit&nbsp;(1)</label>
+              </p:column>
+              <p:column styleClass="borderInsideR borderInsideB">
+                <label>unit&nbsp;(2+)</label>
+              </p:column>              
+              <p:column styleClass="borderInsideR borderInsideB">
+                <label  title="Allowed sign of the value.&#13;+: Value must be non-negative, negative values are considered defective, and an error report is shown.&#13;0: Value is usually non-negative, negative values are corrected to 0.&#13;&plusmn;: Value can booth positive and negative. Some panels can not show negative values, therefore will not be available.">sign</label>
+              </p:column>              
+              <p:column styleClass="borderInsideR borderInsideB">
+                <label>hide</label>
+              </p:column>
+              <p:column styleClass="borderInsideB">
+                <label>multiplier</label>
+              </p:column>
+              <p:column rowspan="4" styleClass="borderR borderB" style="width:1em">
+              </p:column>   
+            </p:row>
+
+            <p:row>
+
+              <p:column style="width:12%" styleClass="borderInsideR borderInsideB">
+                <label>value</label>
+              </p:column>
+              <p:column style="width:12%" styleClass="borderInsideR borderInsideB">                               
+                <p:selectOneMenu                          
+                    value="#{indicator.value.measureUniqueName}"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    filter="false"
+                    autoWidth="false"                    
+                    styleClass="selectOneFieldSmall"
+                    title="Value of the indicator (chose from the columns of the data cube)">
+                  <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="true" />
+                  <f:selectItems value="#{reportEditorBean.sourceCube.measureHeader}" var="h" itemLabel="#{h}" itemValue="#{h}"/>                  
+                </p:selectOneMenu>   
+              </p:column>                      
+              <p:column style="width:12%" styleClass="borderInsideR borderInsideB">
+                <p:inputText 
+                    value="#{indicator.value.units[reportEditorBean.editedLang]}"                    
+                    styleClass="textFieldMini"                        
+                    maxlength="20"
+                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.value.units[0]}"
+                    title="Unit of the value, one piece"/>
+              </p:column>             
+              <p:column style="width:12%" styleClass="borderInsideR borderInsideB">
+                <p:inputText 
+                    value="#{indicator.value.unitPlurals[reportEditorBean.editedLang]}"                    
+                    styleClass="textFieldMini"                        
+                    maxlength="20"
+                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.value.unitPlurals[0]}"
+                    title="Unit of the value, more pieces (use the plural form only if it is really used in the language)"/>
+              </p:column>
+              <p:column style="width:24%" styleClass="borderInsideR borderInsideB">
+                <p:selectOneRadio
+                    value="#{indicator.value.sign}"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    styleClass="centeredCheckBox centeredFilledCheckBox">
+                  <f:selectItem itemLabel="+" itemValue="1"/>
+                  <f:selectItem itemLabel="0" itemValue="0"/>
+                  <f:selectItem itemLabel="&plusmn;" itemValue="-1"/>
+                </p:selectOneRadio>                                    
+              </p:column>  
+              <p:column style="width:12%" styleClass="borderInsideR borderInsideB">
+                <p:selectBooleanCheckbox
+                    value="#{indicator.value.hidden}"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    styleClass="centeredCheckBox"
+                    title="Hide the value in the report?"/>                                      
+              </p:column>  
+              <p:column style="width:12%" styleClass="borderInsideB">
+                <label class="centeredContent">1</label>
+              </p:column>
+            </p:row>
+
+            <p:row>               
+              <p:column styleClass="borderInsideR">
+                <label>fraction</label>
+              </p:column>
+              <p:column styleClass="borderInsideR">
+                <p:selectOneMenu                          
+                    value="#{indicator.denominator.measureUniqueName}"    
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    filter="false"
+                    autoWidth="false"
+                    styleClass="selectOneFieldSmall"
+                    title="Divisor of the prorated value (chose from the columns of the data cube)">
+                  <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="true" />
+                  <f:selectItems value="#{reportEditorBean.sourceCube.measureHeader}" var="h" itemLabel="#{h}" itemValue="#{h}"/>
+                </p:selectOneMenu>   
+              </p:column>        
+              <p:column styleClass="borderInsideR">
+                <p:inputText 
+                    value="#{indicator.denominator.units[reportEditorBean.editedLang]}"                    
+                    styleClass="textFieldMini"
+                    maxlength="20"
+                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.denominator.units[0]}"
+                    title="Unit of the fraction, one piece" />
+              </p:column>
+              <p:column styleClass="borderInsideR">
+                <p:inputText 
+                    value="#{indicator.denominator.unitPlurals[reportEditorBean.editedLang]}"                    
+                    styleClass="textFieldMini"
+                    maxlength="20"
+                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.denominator.unitPlurals[0]}"
+                    title="Unit of the fraction, more pieces (use the plural form only if it is really used in the language)"/>
+              </p:column>
+              <p:column style="width:24%" styleClass="borderInsideR">
+                <p:selectOneRadio
+                    value="#{indicator.denominator.sign}"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    styleClass="centeredCheckBox centeredFilledCheckBox">
+                  <f:selectItem itemLabel="+" itemValue="1" />
+                  <f:selectItem itemLabel="0" itemValue="0" />
+                  <f:selectItem itemLabel="&plusmn;" itemValue="-1" />                  
+                </p:selectOneRadio>                                    
+              </p:column> 
+              <p:column styleClass="borderInsideR">
+                <p:selectBooleanCheckbox
+                    value="#{indicator.denominator.hidden}"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    styleClass="centeredCheckBox"
+                    title="Hide the fraction in the report?"/>                
+              </p:column>  
+              <p:column>
+                <p:inputNumber
+                    value="#{indicator.multiplier}"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    decimalPlaces="3"
+                    inputStyleClass="textFieldMicro"
+                    onblur="trimDecimalPlace(this);"
+                    styleClass="centeredContent"
+                    title="Multiplier of the fraction (eg. use 100 to get percentages)" />
+              </p:column>
+
+            </p:row>
+
+            <p:row>
+              <p:column colspan="7" styleClass="borderB">
+              </p:column>            
+            </p:row>
+
+            <p:row>
+              <p:column colspan="9" styleClass="verticalSpacer">
+              </p:column>
+            </p:row>            
+
+          </ui:repeat>
+
+        </p:panelGrid>          
+
+        <p:commandButton
+            process=":reportForm:indicatorsField"
+            icon="ui-icon-plus"
+            disabled="#{!(reportEditorBean.editedLang eq 0)}"
+            ajax="true"
+            update=":reportForm:indicatorsField"
+            actionListener="#{reportEditorBean.addIndicator()}"
+            oncomplete="trimDecimalPlaces();"
+            title="Add a new indicator"/>              
+
+      </p:fieldset>
+
+      <p:fieldset id="visualizationField" legend="Visualization" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
+
+        <p:panelGrid id="vizualizacioPanel" style="width:100%" styleClass="customBorder">  
+
+          <ui:repeat value="#{reportEditorBean.report.visualizations}" var="visualization" varStatus="loop">
+
+            <p:row>   
+
+              <p:column style="width:100%" styleClass="borderL borderT borderR borderB">
+                <label>Command to create</label>
+                <br />
+                <p:selectOneMenu                     
+                    value="#{visualization.initString}"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    editable="true"
+                    filter="false"
+                    autoWidth="false"
+                    style="width:96%"
+                    title="Javascript constructor of the visualization panel. Use 'global.getConfig();' javascript command to get constructor strings of the panels in a live report, or chose hints from the dropdown menu.">
+                  <f:selectItem itemLabel="-- Chose &amp; edit a template --" itemValue="" itemDisabled="true" />
+                  <f:selectItem itemLabel="panel_pie({dim: 0, val: 0})" itemValue="panel_pie({dim: 0, val: 0})" />
+                  <f:selectItem itemLabel="panel_barline({dim: 0, valbars: [0,1], vallines: []})" itemValue="panel_barline({dim: 0, valbars: [0,1], vallines: []})" />
+                  <f:selectItem itemLabel="panel_barline({streched: false, dim: 0, valbars: [], vallines: [0], symbols: true})" itemValue="panel_barline({streched: false, dim: 0, valbars: [], vallines: [0], symbols: true})" />
+                  <f:selectItem itemLabel="panel_barline({dim: 0, top10: true})" itemValue="panel_barline({dim: 0, top10: true})" />
+                  <f:selectItem itemLabel="panel_map({dim: 0, val: 0, ratio: false})" itemValue="panel_map({dim: 0, val: 0, ratio: false})" />
+                  <f:selectItem itemLabel="panel_bar2d({dimx: 0, dimy: 1, val: 0, ratio: false, streched: false})" itemValue="panel_bar2d({dimx: 0, dimy: 1, val: 0, ratio: false, streched: false})" />
+                  <f:selectItem itemLabel="panel_horizontalbar({dim: 0, valpos: [0,1], valneg: [2], centered: true})" itemValue="panel_horizontalbar({dim: 0, valpos: [0,1], valneg: [2], centered: true})" />
+                  <f:selectItem itemLabel="panel_table1d({dim: 0})" itemValue="panel_table1d({dim: 0})" />
+                  <f:selectItem itemLabel="panel_table2d({dimr: 0, dimc: 1, val: 0, ratio: true})" itemValue="panel_table2d({dimr: 0, dimc: 1, val: 0, ratio: true})" />
+                </p:selectOneMenu>            
+                <br />
+                <br />
+              </p:column>
+              <p:column styleClass="transparentBackground rightButtons">
+                <p:commandButton
+                    process=":reportForm:vizualizacioPanel"
+                    icon="ui-icon-triangle-1-n"
+                    disabled="#{loop.first or !(reportEditorBean.editedLang eq 0)}"
+                    ajax="true"
+                    update=":reportForm:vizualizacioPanel"
+                    actionListener="#{reportEditorBean.moveVisualization(loop.index, -1)}"
+                    oncomplete="setTimeout(function(){document.activeElement.blur();}, 50);"
+                    title="Move panel ahead in the order of appearance"/>
+                <br />
+                <p:commandButton
+                    process=":reportForm:vizualizacioPanel"
+                    icon="ui-icon-minus"
+                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                    ajax="true"
+                    update=":reportForm:vizualizacioPanel"
+                    actionListener="#{reportEditorBean.removeVisualization(loop.index)}"
+                    title="Delete this visualization panel"/>
+                <br />
+                <p:commandButton
+                    process=":reportForm:vizualizacioPanel"
+                    icon="ui-icon-triangle-1-s"
+                    disabled="#{loop.last or !(reportEditorBean.editedLang eq 0)}"
+                    ajax="true"
+                    update=":reportForm:vizualizacioPanel"
+                    actionListener="#{reportEditorBean.moveVisualization(loop.index, 1)}"
+                    oncomplete="setTimeout(function(){document.activeElement.blur();}, 50);"
+                    title="Move panel back in the order of appearance"/>
+              </p:column>
+            </p:row>
+
+            <p:row>
+              <p:column colspan="8" styleClass="verticalSpacer">
+              </p:column>
+            </p:row>
+
+          </ui:repeat>
+
+        </p:panelGrid>
+        <p:commandButton
+            process=":reportForm:visualizationField"
+            icon="ui-icon-plus"
+            disabled="#{!(reportEditorBean.editedLang eq 0)}"
+            ajax="true"
+            update=":reportForm:visualizationField"
+            actionListener="#{reportEditorBean.addVisualization()}"
+            title="Add a new visualization panel"/>
+
+      </p:fieldset>              
+
+      <div id="record_gombok">
+        <p:commandButton
+            ajax="false"
+            rendered="true"
+            disabled="false"
+            process=":reportForm"
+            value="Save"
+            update=":reportForm"
+            action="#{reportEditorBean.save}"
+            styleClass="saveButton">
+        </p:commandButton>
+
+        <p:commandButton
+            ajax="false"
+            rendered="true"
+            disabled="false"
+            process=":reportForm"
+            value="Cancel"
+            update=":reportForm"
+            action="#{reportEditorBean.cancel}"
+            styleClass="cancelButton">
+        </p:commandButton>
+
+      </div>
+
+
+    </h:form>
+  </h:body>
+</html>

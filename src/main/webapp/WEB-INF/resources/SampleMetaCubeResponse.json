@@ -1,0 +1,204 @@
+{  
+    "cube_unique_name": "dwh.cube_gazdkiegyenlitetlenszamlautolsozsoltikaokosdwh.cube_gazdkiegyenlitetlenszamlautolso",
+    "indicators": [  
+        {  
+            "caption": "Fennálló tartozás",
+            "description": "Fennálló tartozás",
+            "value": {  
+                "measure_unique_name": "ertek",
+                "unit": "Ft",
+                "hide": false
+            },
+            "fraction": {  
+                "measure_unique_name": "one",
+                "unit": "Ft",
+                "hide": true,
+                "multiplier": 1.0
+            }
+        },
+        {  
+            "caption": "Számla végösszeg",
+            "description": "A számlán szereplő végösszeg",
+            "value": {  
+                "measure_unique_name": "vegosszeg",
+                "unit": "Ft",
+                "hide": false
+            },
+            "fraction": {  
+                "measure_unique_name": "one",
+                "unit": "Ft",
+                "hide": true,
+                "multiplier": 1.0
+            }
+        }
+    ],
+    "dimensions": [  
+        {  
+            "hierarchy_unique_name": "INTEZET_TIPUS",
+            "caption": "Intézet típus",
+            "description": "Az intezmeny típusa",
+            "top_level_caption": "Összes",
+            "is_territorial": 0,
+            "levels": [  
+                {  
+                    "level": 0,
+                    "level_id": "ALL",
+                    "level_known_id": "",
+                    "level_name_hu": ""
+                },
+                {  
+                    "level": 1,
+                    "level_id": "intezmenytipus_id",
+                    "level_known_id": " intezmenytipus_code",
+                    "level_name_hu": "intezmenytipus_name"
+                },
+                {  
+                    "level": 2,
+                    "level_id": "intezmenytipus_intezet_id",
+                    "level_known_id": "intezmenytipus_intezet_code",
+                    "level_name_hu": "intezmenytipus_intezet_name"
+                }
+            ]
+        },
+        {  
+            "hierarchy_unique_name": "EU_TERSEG",
+            "caption": "Intézet",
+            "description": "Az intézetek egyészségügyi térségenként",
+            "top_level_caption": "Összes",
+            "is_territorial": 0,
+            "levels": [  
+                {  
+                    "level": 0,
+                    "level_id": "ALL",
+                    "level_known_id": "",
+                    "level_name_hu": ""
+                },
+                {  
+                    "level": 1,
+                    "level_id": "euterseg_terseg_id",
+                    "level_known_id": "euterseg_terseg_code",
+                    "level_name_hu": "euterseg_terseg_name"
+                },
+                {  
+                    "level": 2,
+                    "level_id": "euterseg_intezet_id",
+                    "level_known_id": "euterseg_intezet_code",
+                    "level_name_hu": "euterseg_intezet_name"
+                }
+            ]
+        },
+        {  
+            "hierarchy_unique_name": "IDOSZAK",
+            "caption": "Időszak",
+            "description": "Vizsgált időszak",
+            "top_level_caption": "2016.01. – 2016.12.",
+            "is_territorial": 0,
+            "levels": [  
+                {  
+                    "level": 0,
+                    "level_id": "ALL",
+                    "level_known_id": "",
+                    "level_name_hu": ""
+                },
+                {  
+                    "level": 1,
+                    "level_id": "idoszak_id",
+                    "level_known_id": "idoszak_code",
+                    "level_name_hu": "idoszak_name"
+                }
+            ]
+        },
+        {  
+            "hierarchy_unique_name": "ESEMENY_TIPUSA",
+            "caption": "A gazdasági esemény típusa",
+            "description": "A gazdasági esemény típusa",
+            "top_level_caption": "Összes",
+            "is_territorial": 0,
+            "levels": [  
+                {  
+                    "level": 0,
+                    "level_id": "ALL",
+                    "level_known_id": "",
+                    "level_name_hu": ""
+                },
+                {  
+                    "level": 1,
+                    "level_id": "esemany_tipusa_id",
+                    "level_known_id": "esemany_tipusa_code",
+                    "level_name_hu": "esemany_tipusa_name"
+                }
+            ]
+        },
+        {  
+            "hierarchy_unique_name": "KESEDELEM_MERTEKE",
+            "caption": "Késedelem mértéke",
+            "description": "Késedelem mértéke",
+            "top_level_caption": "Összes",
+            "is_territorial": 0,
+            "levels": [  
+                {  
+                    "level": 0,
+                    "level_id": "ALL",
+                    "level_known_id": "",
+                    "level_name_hu": ""
+                },
+                {  
+                    "level": 1,
+                    "level_id": "kesedelem_merteke_id",
+                    "level_known_id": "kesedelem_merteke_code",
+                    "level_name_hu": "kesedelem_merteke_name"
+                }
+            ]
+        },
+        {  
+            "hierarchy_unique_name": "BERUHAZASI",
+            "caption": "Beruházási számla?",
+            "description": "A gazdasági esemény beruházási ügylet-e?",
+            "top_level_caption": "Összes",
+            "is_territorial": 0,
+            "levels": [  
+                {  
+                    "level": 0,
+                    "level_id": "ALL",
+                    "level_known_id": "",
+                    "level_name_hu": ""
+                },
+                {  
+                    "level": 1,
+                    "level_id": "beruhazasi_id",
+                    "level_known_id": "beruhazasi_code",
+                    "level_name_hu": "beruhazasi_name"
+                }
+            ]
+        },
+        {  
+            "hierarchy_unique_name": "FENNTARTASI",
+            "caption": "Fenntartási számla?",
+            "description": "A gazdasági esemény fenntartási ügylet-e?",
+            "top_level_caption": "Összes",
+            "is_territorial": 0,
+            "levels": [  
+                {  
+                    "level": 0,
+                    "level_id": "ALL",
+                    "level_known_id": "",
+                    "level_name_hu": ""
+                },
+                {  
+                    "level": 1,
+                    "level_id": "felujitasi_id",
+                    "level_known_id": "felujitasi_code",
+                    "level_name_hu": "felujitasi_name"
+                }
+            ]
+        }
+    ],
+    "visualization": [  
+        "panel_pie({dim: 4, val: 0, ratio: false})",
+        "panel_barline({dim: 2, valbars: [], vallines: [1,0], valavglines: [], multiplier: 1, ratio: false, streched: false, symbols: false, domain: [], domainr: [], top10: false})",
+        "panel_horizontalbar({dim: 4, valpos: [0], valneg: [1], ratio: false, centered: false, domain: [], domainr: []})",
+        "panel_barline({dim: 1, valbars: [0], vallines: [], valavglines: [], multiplier: 1, ratio: false, streched: false, symbols: false, domain: [], domainr: [], top10: true})",
+        "panel_table1d({dim: 0, multiplier: 1, ratio: false})",
+        "panel_bar2d({dimx: 1, dimy: 4, val: 0, multiplier: 1, ratio: false, streched: true, domain: [], domainr: []})"
+    ]
+}
