@@ -22,14 +22,14 @@
 
     <!-- Nincs jogosultsága üzenet -->
     <h2>
-      <h:outputText rendered="#{isHacked}" styleClass="centeredContent" value="Forbidden area ..." />
+      <h:outputText rendered="true" styleClass="centeredContent" value="Forbidden area ..." />
     </h2>
     <h3>
-      <p:link rendered="#{isHacked}" styleClass="centeredContent" value="Back to the start page" outcome="/index.xhtml" />
+      <p:link rendered="true" styleClass="centeredContent" value="Back to the start page" outcome="/reportChoser.xhtml" />
     </h3>    
 
 
-    <h:form id="reportChoserForm" rendered="#{!isHacked}">
+    <h:form id="reportChoserForm" rendered="true">
 
       <p:fieldset legend="Modify a report" toggleable="false">
         <p:dataTable

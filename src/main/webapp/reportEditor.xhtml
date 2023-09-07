@@ -26,7 +26,7 @@
       <h:outputText rendered="#{isHacked}" styleClass="centeredContent" value="Forbidden area ..." />
     </h2>
     <h3>
-      <p:link rendered="#{isHacked}" styleClass="centeredContent" value="Back to the start page" outcome="/index.xhtml" />
+      <p:link rendered="#{isHacked}" styleClass="centeredContent" value="Back to the start page" outcome="/reportChoser.xhtml" />
     </h3>    
 
 
@@ -229,7 +229,7 @@
                     disabled="#{!(reportEditorBean.editedLang eq 0)}"
                     title="Hierarchy describing the dimension (chose from the hierarchies in the data cube)">
                   <f:selectItem itemLabel="-- chose a hierarchy --" itemValue="" itemDisabled="true"/>
-                  <f:selectItems value="#{reportEditorBean.sourceCube.hierarchyHeader}" var="hier" itemLabel="#{hier}" itemValue="#{hier}"/>
+                  <f:selectItems value="#{reportEditorBean.hierarchyHeader}" var="hier" itemLabel="#{hier}" itemValue="#{hier}"/>
                   <p:ajax listener="#{reportEditorBean.setHierachyFromCube(loop.index)}" update=":reportForm:hierarchyPanel" />
                 </p:selectOneMenu>                  
               </p:column>
@@ -463,7 +463,7 @@
                     styleClass="selectOneFieldSmall"
                     title="Value of the indicator (chose from the columns of the data cube)">
                   <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="true" />
-                  <f:selectItems value="#{reportEditorBean.sourceCube.measureHeader}" var="h" itemLabel="#{h}" itemValue="#{h}"/>                  
+                  <f:selectItems value="#{reportEditorBean.measureHeader}" var="h" itemLabel="#{h}" itemValue="#{h}"/>                  
                 </p:selectOneMenu>   
               </p:column>                      
               <p:column style="width:12%" styleClass="borderInsideR borderInsideB">
@@ -517,7 +517,7 @@
                     styleClass="selectOneFieldSmall"
                     title="Divisor of the prorated value (chose from the columns of the data cube)">
                   <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="true" />
-                  <f:selectItems value="#{reportEditorBean.sourceCube.measureHeader}" var="h" itemLabel="#{h}" itemValue="#{h}"/>
+                  <f:selectItems value="#{reportEditorBean.measureHeader}" var="h" itemLabel="#{h}" itemValue="#{h}"/>
                 </p:selectOneMenu>   
               </p:column>        
               <p:column styleClass="borderInsideR">

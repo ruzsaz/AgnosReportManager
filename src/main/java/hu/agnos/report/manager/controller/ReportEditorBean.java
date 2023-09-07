@@ -1,58 +1,66 @@
 package hu.agnos.report.manager.controller;
 
-//import hu.agnos.molap.Cube;
 import hu.agnos.cube.meta.dto.HierarchyDTO;
 import hu.agnos.cube.meta.dto.LevelDTO;
 import hu.agnos.cube.meta.http.CubeClient;
-import hu.agnos.report.util.Properties;
-import hu.agnos.report.util.ResourceHandler;
-import hu.mi.agnos.report.entity.Hierarchy;
 import hu.mi.agnos.report.entity.Measure;
-import hu.mi.agnos.report.entity.Indicator;
-import hu.mi.agnos.report.entity.Level;
-//import hu.agnos.molap.MOLAPCubeSingleton;
+
 import hu.mi.agnos.report.entity.Report;
 import hu.mi.agnos.report.entity.Visualization;
-import hu.mi.agnos.report.exception.WrongCubeName;
 import hu.mi.agnos.report.repository.ReportRepository;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 @ManagedBean
 @ViewScoped
 public class ReportEditorBean {
 
+    private String cubeServerUri;
+
     private String cubeUniqeName;
     private String reportUniqeName;
     private Report report;
+
     private int editedLang;
     private boolean deleteReport;
-    private final String cubeServerUri;
-
-    public ReportEditorBean(String cubeServerUri) throws IOException {
-        ResourceHandler resourceHandler = new ResourceHandler();
-        Properties props = resourceHandler.getProperties("settings");
-        String propertyUri = props.getString("cubeServerUri");
-        this.cubeServerUri = propertyUri.endsWith("/") ? propertyUri : propertyUri + "/";
-
-    }
+    private String[] hierarchyHeader;
+    private String[] measureHeader;
 
     @PostConstruct
     public void init() {
+    
+        Config config = ConfigProvider.getConfig();
+
+        String cubeServerUri = config.getValue("cube.server.uri", String.class);
+    
+
         this.deleteReport = false;
         this.cubeUniqeName = null;
         Map<String, Object> parameters = FacesContext.getCurrentInstance().getExternalContext().getFlash();
         this.cubeUniqeName = parameters.get("cubeName").toString();
         this.editedLang = 0;
+        Optional<String[]> optHierarchyHeader = getHierarchyHeaderOfCube(cubeServerUri, cubeUniqeName);
+        if(optHierarchyHeader.isPresent()){
+            this.hierarchyHeader = optHierarchyHeader.get();
+        }
+       
+                
+        Optional<String[]> optMeasureHeader = getMeasureHeaderOfCube(cubeServerUri, cubeUniqeName);
+        if(optMeasureHeader.isPresent()){
+            this.measureHeader = optMeasureHeader.get();
+        }        
+                
         if (parameters.get("reportName") == null) { // Ha új reportról van szó
             this.report = new Report();
             this.report.addLanguage("");
@@ -63,7 +71,9 @@ public class ReportEditorBean {
         } else { // Ha régiről
             this.reportUniqeName = parameters.get("reportName").toString();
             Optional<Report> optReport = (new ReportRepository()).findById(cubeUniqeName, reportUniqeName);
-            this.report = optReport.isPresent() ? optReport.get() : null;
+            if (optReport.isPresent()) {
+                this.report = optReport.get();
+            }
             if (report.getHierarchies().isEmpty()) {
                 addHierarchy();
             }
@@ -104,6 +114,22 @@ public class ReportEditorBean {
         return cubeUniqeName;
     }
 
+    public String[] getHierarchyHeader() {
+        return hierarchyHeader;
+    }
+
+    public void setHierarchyHeader(String[] hierarchyHeader) {
+        this.hierarchyHeader = hierarchyHeader;
+    }
+
+    public String[] getMeasureHeader() {
+        return measureHeader;
+    }
+
+    public void setMeasureHeader(String[] measureHeader) {
+        this.measureHeader = measureHeader;
+    }
+
     public void moveHierarchy(int index, int direction) {
         Collections.swap(report.getHierarchies(), index, index + direction);
     }
@@ -116,7 +142,7 @@ public class ReportEditorBean {
     }
 
     public void addHierarchy() {
-        report.getHierarchies().add(new Hierarchy(getLanguageCount()));
+        report.getHierarchies().add(new hu.mi.agnos.report.entity.Hierarchy(getLanguageCount()));
     }
 
     /**
@@ -126,21 +152,39 @@ public class ReportEditorBean {
      * @param index Az állítandó hierarchia report-beli sorszáma.
      */
     public void setHierachyFromCube(int index) {
-        Hierarchy reportHiererchy = report.getHierarchies().get(index);
+        hu.mi.agnos.report.entity.Hierarchy h = report.getHierarchies().get(index);
+        Optional<HierarchyDTO> optHierarchyDTO = getHierarchy(cubeServerUri, cubeUniqeName, h.getHierarchyUniqueName());
+        if (optHierarchyDTO.isPresent()) {
+            List<LevelDTO> lFromSet = optHierarchyDTO.get().getLevels();
+            h.setLevels(new ArrayList<>());
 
-        Optional<HierarchyDTO> optionalHierarchy = new CubeClient()
-                .getHierarchy(cubeServerUri, cubeUniqeName, reportHiererchy.getHierarchyUniqueName());
-
-        if (optionalHierarchy.isPresent()) {
-            reportHiererchy.setLevels(new ArrayList<>());
-            for (LevelDTO levelDTO : optionalHierarchy.get().getLevels()) {
-                reportHiererchy.getLevels().add(new Level(levelDTO.getDepth(), levelDTO.getIdColumnName(), levelDTO.getCodeColumnName(), levelDTO.getNameColumnName()));
+            for (LevelDTO l : lFromSet) {
+                h.getLevels().add(new hu.mi.agnos.report.entity.Level(l.getDepth(), l.getIdColumnName(), l.getCodeColumnName(), l.getNameColumnName()));
             }
-            reportHiererchy.setAllowedDepth(reportHiererchy.getLevels().size() - 1);
-
+            h.setAllowedDepth(h.getLevels().size() - 1);
         }
+
+//                
+//                hu.agnos.molap.dimension.Hierarchy hFromSet = getRealHierarchy(h.getHierarchyUniqueName());
+//        List<hu.agnos.molap.dimension.Level> lFromSet = hFromSet.getLevels();
+//        h.setLevels(new ArrayList<>());
+//        for (hu.agnos.molap.dimension.Level l : lFromSet) {
+//            h.getLevels().add(new hu.mi.agnos.report.entity.Level(l.getDepth(), l.getIdColumnName(), l.getCodeColumnName(), l.getNameColumnName()));
+//        }
+//        h.setAllowedDepth(h.getLevels().size() - 1);
     }
- 
+
+    /**
+     * Visszaad egy CUBE-BELI hierarchiát a kockából a neve alapján.
+     *
+     * @param hierarchyHeader A keresett hierarchia unique neve.
+     * @return A kocka-beli hierarchia.
+     */
+//    public hu.agnos.molap.dimension.Hierarchy getRealHierarchy(String hierarchyHeader) {
+//        int dimIndex = this.sourceCube.getHierarchyInfoByHeader(hierarchyHeader)[0];
+//        int hierIndex = this.sourceCube.getHierarchyInfoByHeader(hierarchyHeader)[1];
+//        return this.sourceCube.getDimensions().get(dimIndex).getHierarchies()[hierIndex];
+//    }
     public void moveIndicator(int index, int direction) {
         Collections.swap(report.getIndicators(), index, index + direction);
     }
@@ -155,8 +199,7 @@ public class ReportEditorBean {
     public void addIndicator() {
         Measure value = new Measure(getLanguageCount(), "", 0, false);
         Measure denominator = new Measure(getLanguageCount(), "", 0, false);
-        //TODO: Jó-e az 1.0 konstans
-        report.getIndicators().add(new Indicator(getLanguageCount(), 0, value, denominator, 1.0));
+        report.getIndicators().add(new hu.mi.agnos.report.entity.Indicator(getLanguageCount(), 0, value, denominator, 1.0));
     }
 
     public int getLanguageCount() {
@@ -207,11 +250,14 @@ public class ReportEditorBean {
 
     public String save() throws IOException, SQLException {
         if (deleteReport) {
-            (new ReportRepository()).deleteById(cubeUniqeName, reportUniqeName);
+            ReportHandler rh = new ReportHandler();
+            rh.deleteExistingReport(cubeUniqeName, report);
         } else {
             setIds();
-            (new ReportRepository()).save(report);
+            ReportHandler rh = new ReportHandler();
+            rh.setReport(cubeUniqeName, report);
         }
+//        ModelSingleton.getInstance().refresh();
         return "reportChoser.xhtml?faces-redirect=true";
     }
 
@@ -231,4 +277,15 @@ public class ReportEditorBean {
         return deleteReport;
     }
 
+    private Optional<HierarchyDTO> getHierarchy(String cubeServerUri, String cubeUniqeName, String hierarchyUniqueName) {
+        return (new CubeClient()).getHierarchy(cubeServerUri, cubeUniqeName, hierarchyUniqueName);
+    }
+    
+    private Optional<String[]> getHierarchyHeaderOfCube(String cubeServerUri, String cubeUniqeName) {
+        return (new CubeClient()).getHierarchyHeaderOfCube(cubeServerUri,cubeUniqeName);
+    }
+    
+    private Optional<String[]> getMeasureHeaderOfCube(String cubeServerUri, String cubeUniqeName) {
+        return (new CubeClient()).getMeasureHeaderOfCube(cubeServerUri,cubeUniqeName);
+    }
 }

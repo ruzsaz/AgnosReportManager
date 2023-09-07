@@ -6,7 +6,7 @@
     
     <factory>
         <exception-handler-factory>
-            hu.agnos.exceptions.CustomExceptionHandlerFactory
+            hu.agnos.report.exceptions.CustomExceptionHandlerFactory
         </exception-handler-factory>
     </factory>
     

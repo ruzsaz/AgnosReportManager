@@ -1,0 +1,17 @@
+{
+  "provider-url": "http://localhost:8082/auth/realms/AgnosRealm",
+  "ssl-required": "external",
+  "client-id": "agnos",
+  "public-client": true,
+  "enable-cors" : true,
+  "cors-max-age" : 1000,
+  "cors-allowed-methods" : "POST, PUT, DELETE, GET",
+  "cors-exposed-headers" : "WWW-Authenticate, My-custom-exposed-Header",
+  "confidential-port": 0,
+  "token-store": "session",
+  "turn-off-change-session-id-on-login": "true",
+  "ignore-oauth-query-parameter": "true",
+  "redirect-rewrite-rules" : {
+    "zolika.*" : "/analysis/manager/main/main.xhtml?faces-redirect=true"
+  }
+}

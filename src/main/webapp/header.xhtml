@@ -156,18 +156,6 @@
 
     <div id="top_menubar" rendered="false">
       <p:menubar styleClass="menubar" autoDisplay="false" style="z-index: 100">
-        <p:menuitem value="Agnos admin pages. Log in first!" rendered="#{!login.loggedIn}" disabled="true" url="/index.xhtml" ajax="false" />
-        <p:menuitem value="You are not an Agnos admin" rendered="#{login.loggedIn and !isAdmin}" disabled="true" url="/index.xhtml" ajax="false" />
-        <p:menuitem value="Manage reports" rendered="#{login.isPermitted('REPORTADMIN')}" url="/reportChoser.xhtml" ajax="false" />
-        <p:menuitem value="Manage users" rendered="#{login.isPermitted('USERADMIN')}" url="/userChoser.xhtml" ajax="false" />        
-        <p:menuitem value="X" rendered="true" url="/index.xhtml" ajax="false" containerStyle="float:right">        
-          <!--
-                    <svg version="1.1" x="0px" y="0px" width="32px" height="32px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
-                      <use xlink:href="#icon_close" />
-                    </svg>
-          -->
-
-        </p:menuitem>
         <p:submenu rendered="#{login.loggedIn}" label="#{login.username}" style="float:right">          
           <p:menuitem value="Logout"  action="#{login.logout()}" />
         </p:submenu>        

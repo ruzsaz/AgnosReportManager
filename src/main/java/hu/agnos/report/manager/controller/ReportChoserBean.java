@@ -5,69 +5,49 @@
  */
 package hu.agnos.report.manager.controller;
 
-import hu.mi.agnos.report.repository.ReportRepository;
-import hu.agnos.report.util.Properties;
-import hu.agnos.report.util.ResourceHandler;
+
+import hu.agnos.cube.meta.dto.CubeList;
+import hu.agnos.cube.meta.dto.CubeNameAndDate;
 import hu.agnos.cube.meta.http.CubeClient;
 import hu.mi.agnos.report.entity.Report;
-import java.io.IOException;
+import hu.mi.agnos.report.repository.ReportRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 @ManagedBean
 public class ReportChoserBean {
 
+    //TODO: ezt kiszervezni property-be
+    private String cubeServerUri = "http://localhost:7979/acs";
     private List<String> cubeNames;
     private List<Report> reports;
     private Report selectedReport;
     private String selectedCubeName;
-    private final String cubeServerUri;
-
-    public ReportChoserBean() throws IOException {
-        ResourceHandler resourceHandler = new ResourceHandler();
-        Properties props = resourceHandler.getProperties("settings");
-        String propertyUri = props.getString("cubeServerUri"); 
-        this.cubeServerUri = propertyUri.endsWith("/") ? propertyUri : propertyUri+"/";
-
-    }
 
     @PostConstruct
     public void init() {
         System.out.println("ReportChoserBean INIT");
         
-        this.reports = (new ReportRepository()).findAll();
-
         
-        Optional<List<String>> optionalCubeList = new CubeClient()
-                .getCubesName(this.cubeServerUri);
-        
-        if (optionalCubeList.isPresent()) {
+        Config config = ConfigProvider.getConfig();
 
-            this.cubeNames = optionalCubeList.get();
-            /*
-            this.reports = new ArrayList<>();
-            for (String cubeName : this.cubeNames) {
-                Cube c = ModelSingleton.getInstance().get(cubeName);
-                //ha a kockához létezik riport
-                if (c != null) {
-                    for (String reportName : ModelSingleton.getInstance().get(cubeName).keySet()) {
-                        try {
-                            System.out.println("ZOLIKA: " + cubeName + " " + reportName);
-                            // TODO: nyelvkód "" helyett.
-                            Report report = ModelSingleton.getInstance().getReport(cubeName, reportName);
-                            this.reports.add(report);
-                        } catch (WrongCubeName ex) {
-                            Logger.getLogger(ReportEditorBean.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-                        }
-                    }
-                }
+        String cubeServerUri = config.getValue("cube.server.uri", String.class);
+        
+        this.cubeNames = new ArrayList<>();
+        Optional<CubeList> cubeList = getCubeList();
+        if(cubeList.isPresent()){
+            for(CubeNameAndDate cnad : cubeList.get().getCubesNameAndDate()){
+                this.cubeNames.add(cnad.getName());
             }
-             */
         }
+        this.reports = (new ReportRepository()).findAll();
     }
 
     public void setOldReport() {
@@ -110,4 +90,7 @@ public class ReportChoserBean {
         this.selectedCubeName = selectedCubeName;
     }
 
+    private Optional<CubeList> getCubeList() {
+        return (new CubeClient()).getCubesNameAndDate(cubeServerUri);
+    }
 }
