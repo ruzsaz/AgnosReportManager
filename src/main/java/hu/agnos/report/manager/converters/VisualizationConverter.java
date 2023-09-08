@@ -7,8 +7,7 @@
  */
 package hu.agnos.report.manager.converters;
 
-import hu.mi.agnos.report.entity.Visualization;
-import java.util.regex.Pattern;
+import hu.agnos.report.entity.Visualization;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;

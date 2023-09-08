@@ -3,39 +3,100 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hu.agnos.report.manager.controller;
+package hu.agnos.report.session;
 
-import hu.agnos.report.controller.auth.Authenticator;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.Serializable;
+import java.security.Principal;
+import java.util.Enumeration;
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.security.auth.login.LoginException;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.primefaces.context.RequestContext;
-
-
+import org.wildfly.security.http.oidc.OidcPrincipal;
 
 /**
  *
  * @author parisek
  */
-@ManagedBean
+@Named(value = "login")
 @SessionScoped
-public class Login {
+public class Login implements Serializable {
 
-    private String username;
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = LogManager.getLogger(Login.class);   //!< Log kezelő
+
+
+    private String userName;
     private String password;
     private boolean loggedIn;
     private String token;
 
-    public Login() {
+    @PostConstruct
+    public void init(){
+
         this.loggedIn = true;
-        this.username="EZT_MAJD_KISZEDJUK...";
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
+
+        if (request.getUserPrincipal() != null) {
+
+            this.userName = request.getUserPrincipal().getName();
+
+            Principal p = request.getUserPrincipal();
+            if (p instanceof OidcPrincipal) {
+                OidcPrincipal principal = (OidcPrincipal) p;
+                this.userName = principal.getOidcSecurityContext().getToken().getClaimValueAsString("preferred_username");
+            }
+
+        } else {
+            this.userName = "";
+        }
+
+//        String userName = sc.getUserPrincipal().getName();
+//
+//        if (sc.getUserPrincipal() instanceof KeycloakPrincipal) {
+//            KeycloakPrincipal<KeycloakSecurityContext> kp = (KeycloakPrincipal<KeycloakSecurityContext>) sc.getUserPrincipal();
+//
+//            // this is how to get the real userName (or rather the login name)
+//            userName = kp.getKeycloakSecurityContext().getIdToken().getPreferredUsername();
+//        }
+//        this.username = 
+    }
+
+    public String logout() {
+//        LOGGER.info(() -> LogMessageFactory.logMessage(FacesContext.getCurrentInstance(), user, "1200"));
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
+        HttpServletResponse response = (HttpServletResponse) context.getExternalContext().getResponse();
+        HttpSession session = request.getSession(true);
+
+        Enumeration attributeNames = session.getAttributeNames();
+
+        //destroy session        
+        while (attributeNames.hasMoreElements()) {
+            String name = (String) attributeNames.nextElement();
+            session.removeAttribute(name);
+        }
+
+        this.loggedIn = false;
+        this.userName = null;
+
+        try {
+            response.sendRedirect("/reportChoser.xhtml?faces-redirect=true");
+        } catch (IOException e) {
+            context.addMessage(null, new FacesMessage("Logout failed."));
+        }
+        return "reportChoser.xhtml?faces-redirect=true";
     }
 
     public boolean isLoggedIn() {
@@ -43,11 +104,11 @@ public class Login {
     }
 
     public String getUsername() {
-        return username;
+        return userName;
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.userName = username;
     }
 
     public String getPassword() {
@@ -63,7 +124,7 @@ public class Login {
     }
 
     public String getRealName() {
-        String result = this.username;
+        String result = this.userName;
 //        if (username != null) {
 //            try {
 //                result = UserPrincipalStorageSingleton.getInstance().get(username).getRealName();
@@ -92,7 +153,7 @@ public class Login {
 //            result = Authorizator.hasPermission(username, roleName);
 //        }
 //        return (this.loggedIn && result);
-          return true;
+        return true;
     }
 
     public void login(ActionEvent event) {
@@ -104,8 +165,8 @@ public class Login {
         }
         FacesMessage message = null;
         token = null;
-        if (username != null && password != null) {
-            token = login(username, password, remoteIp);
+        if (userName != null && password != null) {
+            token = login(userName, password, remoteIp);
             password = null;
         }
 
@@ -124,25 +185,25 @@ public class Login {
         //return "/index.xhtml?faces-redirect=true";
     }
 
-    public String login(String username, String password, String remoteIP) {        
+    public String login(String username, String password, String remoteIP) {
         String token = null;
-        try {
-            Authenticator auth = new Authenticator();
-            Logger.getLogger(Login.class.getName()).log(Level.INFO, "Successful login: {0}", username);
-            token = auth.login(username, password, remoteIP);
-        } catch (IOException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            Authenticator auth = new Authenticator();
+//            Logger.getLogger(Login.class.getName()).log(Level.INFO, "Successful login: {0}", username);
+//            token = auth.login(username, password, remoteIP);
+//        } catch (IOException ex) {
+//            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
         return token;
     }
-
-    public String logout() {
-        this.loggedIn = false;
-        this.username = null;
-        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
-        return "/reportChoser.xhtml?faces-redirect=true";
-    }
+//
+//    public String logout() {
+//        this.loggedIn = false;
+//        this.userName = null;
+//        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+//        return "/reportChoser.xhtml?faces-redirect=true";
+//    }
 
 //    public void storeLoggedInUser(String username) {
 //        try {

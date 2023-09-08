@@ -32,7 +32,13 @@
             <version>2.0</version>
             <type>jar</type>
         </dependency>
-        
+        <!-- https://mvnrepository.com/artifact/org.wildfly.security/wildfly-elytron-http-oidc -->
+        <dependency>
+            <groupId>org.wildfly.security</groupId>
+            <artifactId>wildfly-elytron-http-oidc</artifactId>
+            <version>1.18.0.Final</version>
+        </dependency>
+
         <dependency>
             <groupId>org.primefaces</groupId>
             <artifactId>primefaces</artifactId>
@@ -81,7 +87,7 @@
             <scope>runtime</scope>
         </dependency>
         
-                <dependency>
+        <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-admin-client</artifactId>
             <version>${keycloak.version}</version>
@@ -92,8 +98,12 @@
             <version>${microprofile.api.version}</version>
             <scope>provided</scope>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.20.0</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     
     <build>
@@ -120,18 +130,18 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
-		<failOnMissingWebXml>false</failOnMissingWebXml>
-		<webResources>
-			<resource>
-				<directory>${project.basedir}/external_libs</directory>
-				<targetPath>WEB-INF/lib</targetPath>
-				<filtering>false</filtering>
-				<includes>
-					<include>**/*.jar</include>
-				</includes>
-			</resource>
-		</webResources>
-	</configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <webResources>
+                        <resource>
+                            <directory>${project.basedir}/external_libs</directory>
+                            <targetPath>WEB-INF/lib</targetPath>
+                            <filtering>false</filtering>
+                            <includes>
+                                <include>**/*.jar</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
             </plugin>
         </plugins>
     </build>

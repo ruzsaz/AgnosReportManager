@@ -9,23 +9,31 @@ package hu.agnos.report.manager.controller;
 import hu.agnos.cube.meta.dto.CubeList;
 import hu.agnos.cube.meta.dto.CubeNameAndDate;
 import hu.agnos.cube.meta.http.CubeClient;
-import hu.mi.agnos.report.entity.Report;
-import hu.mi.agnos.report.repository.ReportRepository;
+import hu.agnos.report.entity.Report;
+import hu.agnos.report.repository.ReportRepository;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
+import javax.inject.Named;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 
-@ManagedBean
-public class ReportChoserBean {
+@Named(value = "reportChoserBean")
+@SessionScoped
+public class ReportChoserBean  implements Serializable {
 
-    //TODO: ezt kiszervezni property-be
-    private String cubeServerUri = "http://localhost:7979/acs";
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = LogManager.getLogger(ReportChoserBean.class);   //!< Log kezelő
+
+
+    private String cubeServerUri="http://localhost:7979/acs";
     private List<String> cubeNames;
     private List<Report> reports;
     private Report selectedReport;
@@ -40,7 +48,9 @@ public class ReportChoserBean {
 
         String cubeServerUri = config.getValue("cube.server.uri", String.class);
         
+
         this.cubeNames = new ArrayList<>();
+
         Optional<CubeList> cubeList = getCubeList();
         if(cubeList.isPresent()){
             for(CubeNameAndDate cnad : cubeList.get().getCubesNameAndDate()){
