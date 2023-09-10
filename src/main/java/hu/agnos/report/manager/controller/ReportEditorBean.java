@@ -23,15 +23,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
-import javax.enterprise.context.RequestScoped;
+import javax.faces.view.ViewScoped;
 
 @Named(value = "reportEditorBean")
-@RequestScoped
+@ViewScoped
 public class ReportEditorBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LogManager.getLogger(ReportEditorBean.class);   //!< Log kezelő
-
 
     private String cubeServerUri;
 
@@ -46,11 +45,10 @@ public class ReportEditorBean implements Serializable {
 
     @PostConstruct
     public void init() {
-    
+
         Config config = ConfigProvider.getConfig();
 
         String cubeServerUri = config.getValue("cube.server.uri", String.class);
-    
 
         this.deleteReport = false;
         this.cubeUniqeName = null;
@@ -58,16 +56,15 @@ public class ReportEditorBean implements Serializable {
         this.cubeUniqeName = parameters.get("cubeName").toString();
         this.editedLang = 0;
         Optional<String[]> optHierarchyHeader = getHierarchyHeaderOfCube(cubeServerUri, cubeUniqeName);
-        if(optHierarchyHeader.isPresent()){
+        if (optHierarchyHeader.isPresent()) {
             this.hierarchyHeader = optHierarchyHeader.get();
         }
-       
-                
+
         Optional<String[]> optMeasureHeader = getMeasureHeaderOfCube(cubeServerUri, cubeUniqeName);
-        if(optMeasureHeader.isPresent()){
+        if (optMeasureHeader.isPresent()) {
             this.measureHeader = optMeasureHeader.get();
-        }        
-                
+        }
+
         if (parameters.get("reportName") == null) { // Ha új reportról van szó
             this.report = new Report();
             this.report.addLanguage("");
@@ -81,15 +78,15 @@ public class ReportEditorBean implements Serializable {
             Optional<Report> optReport = (new ReportRepository()).findById(cubeUniqeName, reportUniqeName);
             if (optReport.isPresent()) {
                 this.report = optReport.get();
-            }
-            if (report.getHierarchies().isEmpty()) {
-                addHierarchy();
-            }
-            if (report.getIndicators().isEmpty()) {
-                addIndicator();
-            }
-            if (report.getVisualizations().isEmpty()) {
-                addVisualization();
+                if (report.getHierarchies().isEmpty()) {
+                    addHierarchy();
+                }
+                if (report.getIndicators().isEmpty()) {
+                    addIndicator();
+                }
+                if (report.getVisualizations().isEmpty()) {
+                    addVisualization();
+                }
             }
         }
     }
@@ -265,12 +262,12 @@ public class ReportEditorBean implements Serializable {
     private Optional<HierarchyDTO> getHierarchy(String cubeServerUri, String cubeUniqeName, String hierarchyUniqueName) {
         return (new CubeClient()).getHierarchy(cubeServerUri, cubeUniqeName, hierarchyUniqueName);
     }
-    
+
     private Optional<String[]> getHierarchyHeaderOfCube(String cubeServerUri, String cubeUniqeName) {
-        return (new CubeClient()).getHierarchyHeaderOfCube(cubeServerUri,cubeUniqeName);
+        return (new CubeClient()).getHierarchyHeaderOfCube(cubeServerUri, cubeUniqeName);
     }
-    
+
     private Optional<String[]> getMeasureHeaderOfCube(String cubeServerUri, String cubeUniqeName) {
-        return (new CubeClient()).getMeasureHeaderOfCube(cubeServerUri,cubeUniqeName);
+        return (new CubeClient()).getMeasureHeaderOfCube(cubeServerUri, cubeUniqeName);
     }
 }

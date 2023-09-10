@@ -47,7 +47,7 @@
     <login-config>
         <auth-method>OIDC</auth-method>
     </login-config>
-      <listener>
+    <listener>
         <listener-class>
             hu.agnos.report.session.SessionTimeoutListener
         </listener-class>

@@ -180,7 +180,7 @@
               <label>Data&nbsp;source&nbsp;name</label>
             </p:column>
             <p:column style="width:1%" styleClass="borderR">
-              <p:inputText 
+              <p:inputText                   
                   value="#{reportEditorBean.report.datasource[reportEditorBean.editedLang]}"
                   styleClass="textField"
                   maxlength="30"
@@ -195,7 +195,7 @@
             <p:column colspan="7" style="width:5%" styleClass="borderL borderB borderR">  
               <label>Long description of the report, appears on the help page.</label>
               <br />
-              <p:textEditor
+              <p:textEditor                  
                   id="description_helpHTML"
                   value="#{reportEditorBean.report.helps[reportEditorBean.editedLang]}"                  
                   style="width:100%; box-sizing:border-box"                        
@@ -462,7 +462,7 @@
                     autoWidth="false"                    
                     styleClass="selectOneFieldSmall"
                     title="Value of the indicator (chose from the columns of the data cube)">
-                  <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="true" />
+                    <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="false"/>
                   <f:selectItems value="#{reportEditorBean.measureHeader}" var="h" itemLabel="#{h}" itemValue="#{h}"/>                  
                 </p:selectOneMenu>   
               </p:column>                      
@@ -516,7 +516,7 @@
                     autoWidth="false"
                     styleClass="selectOneFieldSmall"
                     title="Divisor of the prorated value (chose from the columns of the data cube)">
-                  <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="true" />
+                    <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="true"/>
                   <f:selectItems value="#{reportEditorBean.measureHeader}" var="h" itemLabel="#{h}" itemValue="#{h}"/>
                 </p:selectOneMenu>   
               </p:column>        

@@ -20,13 +20,10 @@
 
     <ui:include src="header.xhtml" />      
 
-    <!-- Nincs jogosultsága üzenet -->
     <h2>
-      <h:outputText rendered="true" styleClass="centeredContent" value="Forbidden area ..." />
+      <h:outputText rendered="true" styleClass="centeredContent" value="Hey, #{login.username}, take care!" />
     </h2>
-    <h3>
-      <p:link rendered="true" styleClass="centeredContent" value="Back to the start page" outcome="/reportChoser.xhtml" />
-    </h3>    
+  
 
 
     <h:form id="reportChoserForm" rendered="true">

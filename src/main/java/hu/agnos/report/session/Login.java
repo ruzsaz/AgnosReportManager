@@ -92,7 +92,7 @@ public class Login implements Serializable {
         this.userName = null;
 
         try {
-            response.sendRedirect("/reportChoser.xhtml?faces-redirect=true");
+            response.sendRedirect("reportChoser.xhtml?faces-redirect=true");
         } catch (IOException e) {
             context.addMessage(null, new FacesMessage("Logout failed."));
         }
