@@ -48,7 +48,7 @@ public class ReportEditorBean implements Serializable {
 
         Config config = ConfigProvider.getConfig();
 
-        String cubeServerUri = config.getValue("cube.server.uri", String.class);
+        this.cubeServerUri = config.getValue("cube.server.uri", String.class);
 
         this.deleteReport = false;
         this.cubeUniqeName = null;
@@ -156,7 +156,7 @@ public class ReportEditorBean implements Serializable {
      *
      * @param index Az állítandó hierarchia report-beli sorszáma.
      */
-    public void setHierachyFromCube(int index) {
+    public void setHierarchyFromCube(int index) {
         hu.agnos.report.entity.Hierarchy h = report.getHierarchies().get(index);
         Optional<HierarchyDTO> optHierarchyDTO = getHierarchy(cubeServerUri, cubeUniqeName, h.getHierarchyUniqueName());
         if (optHierarchyDTO.isPresent()) {
@@ -260,14 +260,14 @@ public class ReportEditorBean implements Serializable {
     }
 
     private Optional<HierarchyDTO> getHierarchy(String cubeServerUri, String cubeUniqeName, String hierarchyUniqueName) {
-        return (new CubeClient()).getHierarchy(cubeServerUri, cubeUniqeName, hierarchyUniqueName);
+        return (new CubeClient(cubeServerUri)).getHierarchy(cubeUniqeName, hierarchyUniqueName);
     }
 
     private Optional<String[]> getHierarchyHeaderOfCube(String cubeServerUri, String cubeUniqeName) {
-        return (new CubeClient()).getHierarchyHeaderOfCube(cubeServerUri, cubeUniqeName);
+        return (new CubeClient(cubeServerUri)).getHierarchyHeaderOfCube(cubeUniqeName);
     }
 
     private Optional<String[]> getMeasureHeaderOfCube(String cubeServerUri, String cubeUniqeName) {
-        return (new CubeClient()).getMeasureHeaderOfCube(cubeServerUri, cubeUniqeName);
+        return (new CubeClient(cubeServerUri)).getMeasureHeaderOfCube(cubeUniqeName);
     }
 }

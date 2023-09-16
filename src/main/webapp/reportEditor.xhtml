@@ -230,7 +230,7 @@
                     title="Hierarchy describing the dimension (chose from the hierarchies in the data cube)">
                   <f:selectItem itemLabel="-- chose a hierarchy --" itemValue="" itemDisabled="true"/>
                   <f:selectItems value="#{reportEditorBean.hierarchyHeader}" var="hier" itemLabel="#{hier}" itemValue="#{hier}"/>
-                  <p:ajax listener="#{reportEditorBean.setHierachyFromCube(loop.index)}" update=":reportForm:hierarchyPanel" />
+                  <p:ajax listener="#{reportEditorBean.setHierarchyFromCube(loop.index)}" update=":reportForm:hierarchyPanel" />
                 </p:selectOneMenu>                  
               </p:column>
               <p:column style="width:1%" styleClass="borderT">

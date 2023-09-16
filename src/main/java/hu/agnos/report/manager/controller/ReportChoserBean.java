@@ -32,8 +32,7 @@ public class ReportChoserBean  implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LogManager.getLogger(ReportChoserBean.class);   //!< Log kezelő
 
-
-    private String cubeServerUri="http://localhost:7979/acs";
+    private String cubeServerUri;
     private List<String> cubeNames;
     private List<Report> reports;
     private Report selectedReport;
@@ -46,9 +45,9 @@ public class ReportChoserBean  implements Serializable {
         
         Config config = ConfigProvider.getConfig();
 
-        String cubeServerUri = config.getValue("cube.server.uri", String.class);
+        this.cubeServerUri = config.getValue("cube.server.uri", String.class);
         
-
+        System.out.println("ZOLIKAOKOS: " + this.cubeServerUri);
         this.cubeNames = new ArrayList<>();
 
         Optional<CubeList> cubeList = getCubeList();
@@ -101,6 +100,6 @@ public class ReportChoserBean  implements Serializable {
     }
 
     private Optional<CubeList> getCubeList() {
-        return (new CubeClient()).getCubesNameAndDate(cubeServerUri);
+        return (new CubeClient(cubeServerUri)).getCubesNameAndDate();
     }
 }
