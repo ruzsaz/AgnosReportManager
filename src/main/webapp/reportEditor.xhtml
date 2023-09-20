@@ -173,7 +173,7 @@
                   disabled="#{!(reportEditorBean.editedLang eq 0)}"
                   title="Only members of this group can access this report.">
                 <f:selectItem itemLabel="-- Chose a group --" itemValue="" itemDisabled="true"/>
-                <f:selectItems value="#{userManagement.roles}" var="role" itemLabel="#{role.name}" itemValue="#{role.name}"/>
+                <f:selectItems value="#{reportEditorBean.roles}" var="role" itemLabel="#{role}" itemValue="#{role}"/>
               </p:selectOneMenu>
             </p:column> 
             <p:column style="width:5%">
@@ -372,21 +372,37 @@
 
             <p:row>   
               <p:column colspan="9" style="width:100%; padding-bottom:2ex" styleClass="borderL borderT borderR">
-                <label style="padding-right: 1em;">Short&nbsp;label</label>              
+                <label style="padding-right: 0.5em;">Label</label>              
                 <p:inputText 
                     value="#{indicator.captions[reportEditorBean.editedLang]}"                    
                     styleClass="textField"
-                    style="margin-right:6em"
+                    style="margin-right:4em; width:12em"
                     maxlength="200"
                     placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.captions[0]}"
                     title="Short label of the indicator"/>                              
-                <label style="padding-right: 1em;">Longer&nbsp;description</label>              
+                <label style="padding-right: 0.5em;">Description</label>              
                 <p:inputText 
                     value="#{indicator.descriptions[reportEditorBean.editedLang]}"                    
-                    styleClass="textField"                    
+                    styleClass="textField"
+                    style="margin-right:2em; width:18em"
                     maxlength="500"
                     placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.descriptions[0]}"
-                    title="Longer description of the indicator. Acts as tooltip in the report."/>                
+                    title="Longer description of the indicator. Acts as tooltip in the report."/>
+                <div style="display: inline-flex; flex-direction: column; position: relative; right: 2px; float: right; top: -10px; margin-bottom: -20px;">
+                    <label style="font-size: small">Kaplan-Meier hierarchy</label>
+                    <p:selectOneMenu                          
+                        value="#{indicator.extraCalculation.args}"
+                        disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                        style="margin-right:0em; width:7.7em"
+                        filter="false"
+                        autoWidth="false"                    
+                        styleClass="selectOneFieldSmall"
+                        title="Hierarchy the Kaplan-Meier estimation calculated along">
+                        <f:selectItem itemLabel="not a K-M indicator" itemValue="" itemDisabled="false" noSelectionOption="false"/>
+                        <f:selectItems value="#{reportEditorBean.hierarchyHeader}" var="hier" itemLabel="#{hier}" itemValue="#{hier}"/>
+                        <p:ajax listener="#{reportEditorBean.setExtracalculationForIndicator(loop.index)}" update=":reportForm:indicatorsPanel" />
+                    </p:selectOneMenu>   
+                </div>
               </p:column>        
               <p:column rowspan="4" styleClass="transparentBackground rightButtons">
                 <p:commandButton
@@ -420,6 +436,9 @@
                     title="Move indicator back in the order of appearance"/>
               </p:column>               
 
+                
+                
+                
             </p:row>
 
             <p:row>

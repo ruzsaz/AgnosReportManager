@@ -40,10 +40,6 @@
         <extension module="org.wildfly.extension.undertow"/>
     </extensions>
     <system-properties>
-        <property name="keycloak.serverurl" value="http://192.168.109.7:8180/auth"/>
-        <property name="manager.queue_ip" value="192.168.109.7"/>
-        <property name="genom.images.url" value="http://192.168.109.7:8070"/>
-        <property name="manager.queue_port" value="5672"/>
     </system-properties>
     <management>
         <audit-log>

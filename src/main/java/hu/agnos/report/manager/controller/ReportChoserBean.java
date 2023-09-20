@@ -39,17 +39,10 @@ public class ReportChoserBean  implements Serializable {
     private String selectedCubeName;
 
     @PostConstruct
-    public void init() {
-        System.out.println("ReportChoserBean INIT");
-        
-        
+    public void init() {      
         Config config = ConfigProvider.getConfig();
-
-        this.cubeServerUri = config.getValue("cube.server.uri", String.class);
-        
-        System.out.println("ZOLIKAOKOS: " + this.cubeServerUri);
+        this.cubeServerUri = config.getValue("cube.server.uri", String.class);       
         this.cubeNames = new ArrayList<>();
-
         Optional<CubeList> cubeList = getCubeList();
         if(cubeList.isPresent()){
             for(CubeNameAndDate cnad : cubeList.get().getCubesNameAndDate()){

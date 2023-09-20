@@ -31,11 +31,36 @@
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
     
+    <error-page>
+        <error-code>403</error-code>
+        <location>/error.xhtml</location>
+    </error-page>    
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Error pages</web-resource-name>
+            <url-pattern>/error*</url-pattern>
+        </web-resource-collection>
+        <!-- OMIT auth-constraint -->
+    </security-constraint>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Unprotected resources</web-resource-name>
+            <url-pattern>/resources/*</url-pattern>
+        </web-resource-collection>
+        <!-- OMIT auth-constraint -->
+    </security-constraint>
+    
+    
     <!--  Restrict access to the /main/... pages  -->
+    
+    
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Manager command</web-resource-name>
-            <url-pattern>/*</url-pattern>
+            <url-pattern>/reportChoser.xhtml</url-pattern>
+            <url-pattern>/reportEditor.xhtml</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>agnosAdmin</role-name>

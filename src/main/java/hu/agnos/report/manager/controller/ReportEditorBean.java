@@ -3,6 +3,7 @@ package hu.agnos.report.manager.controller;
 import hu.agnos.cube.meta.dto.HierarchyDTO;
 import hu.agnos.cube.meta.dto.LevelDTO;
 import hu.agnos.cube.meta.http.CubeClient;
+import hu.agnos.report.entity.ExtraCalculation;
 import hu.agnos.report.entity.Measure;
 
 import hu.agnos.report.entity.Report;
@@ -16,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
@@ -24,6 +26,10 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import javax.faces.view.ViewScoped;
+import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.representations.idm.RoleRepresentation;
 
 @Named(value = "reportEditorBean")
 @ViewScoped
@@ -42,6 +48,7 @@ public class ReportEditorBean implements Serializable {
     private boolean deleteReport;
     private String[] hierarchyHeader;
     private String[] measureHeader;
+    private List<String> roles;
 
     @PostConstruct
     public void init() {
@@ -49,7 +56,7 @@ public class ReportEditorBean implements Serializable {
         Config config = ConfigProvider.getConfig();
 
         this.cubeServerUri = config.getValue("cube.server.uri", String.class);
-
+        this.roles = getAllRoles();
         this.deleteReport = false;
         this.cubeUniqeName = null;
         Map<String, Object> parameters = FacesContext.getCurrentInstance().getExternalContext().getFlash();
@@ -91,6 +98,10 @@ public class ReportEditorBean implements Serializable {
         }
     }
 
+    public List<String> getRoles() {
+        return roles;
+    }
+        
     public String getReportUniqeName() {
         return reportUniqeName;
     }
@@ -233,6 +244,17 @@ public class ReportEditorBean implements Serializable {
         report.addLanguage("???");
     }
 
+    public void setExtracalculationForIndicator(int indicatorIndex) {
+        for (int i = 0; i < report.getIndicators().size(); i++) {
+            if (i != indicatorIndex) {
+                ExtraCalculation exCal = report.getIndicators().get(i).getExtraCalculation();
+                exCal.setArgs("");
+                exCal.setFunction("");
+            }
+        }
+        report.getIndicators().get(indicatorIndex).getExtraCalculation().setFunction("KaplanMeier");
+    }
+    
     public String save() throws IOException, SQLException {
         if (deleteReport) {
             (new ReportRepository()).delete(report);
@@ -270,4 +292,21 @@ public class ReportEditorBean implements Serializable {
     private Optional<String[]> getMeasureHeaderOfCube(String cubeServerUri, String cubeUniqeName) {
         return (new CubeClient(cubeServerUri)).getMeasureHeaderOfCube(cubeUniqeName);
     }
+    
+    private List<String> getAllRoles() {
+        
+        Config config = ConfigProvider.getConfig();        
+        Keycloak keycloak = KeycloakBuilder.builder()
+                .serverUrl(config.getValue("keycloak.serverurl", String.class))
+                .realm("master")
+                .clientId("admin-cli")
+                .grantType(OAuth2Constants.PASSWORD)
+                .username(config.getValue("keycloak.username", String.class))
+                .password(config.getValue("keycloak.password", String.class))
+                .build();
+        
+        List<RoleRepresentation> roleRepresentation = keycloak.realm(config.getValue("keycloak.realm", String.class)).roles().list();
+        return roleRepresentation.stream().map(rr -> rr.getName()).collect(Collectors.toList());                        
+    }
+    
 }

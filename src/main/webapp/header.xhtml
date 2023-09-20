@@ -156,10 +156,7 @@
 
     <div id="top_menubar" rendered="false">
       <p:menubar styleClass="menubar" autoDisplay="false" style="z-index: 100">
-        <p:submenu rendered="#{login.loggedIn}" label="#{login.username}" style="float:right">          
-          <p:menuitem value="Logout"  action="#{login.logout()}" />
-        </p:submenu>        
-
+          <p:menuitem value="Logout" action="#{login.logout}" />
       </p:menubar>
     </div>
 
