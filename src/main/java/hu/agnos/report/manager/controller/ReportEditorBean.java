@@ -11,12 +11,14 @@ import hu.agnos.report.entity.Visualization;
 import hu.agnos.report.repository.ReportRepository;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
@@ -26,6 +28,9 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import javax.faces.view.ViewScoped;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -39,6 +44,7 @@ public class ReportEditorBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(ReportEditorBean.class);   //!< Log kezelő
 
     private String cubeServerUri;
+    private String reportServerUri;
 
     private String cubeUniqeName;
     private String reportUniqeName;
@@ -56,10 +62,11 @@ public class ReportEditorBean implements Serializable {
         Config config = ConfigProvider.getConfig();
 
         this.cubeServerUri = config.getValue("cube.server.uri", String.class);
+        this.reportServerUri = config.getValue("report.server.uri", String.class);       
         this.roles = getAllRoles();
         this.deleteReport = false;
         this.cubeUniqeName = null;
-        Map<String, Object> parameters = FacesContext.getCurrentInstance().getExternalContext().getFlash();
+        Map<String, Object> parameters = FacesContext.getCurrentInstance().getExternalContext().getFlash();        
         this.cubeUniqeName = parameters.get("cubeName").toString();
         this.editedLang = 0;
         Optional<String[]> optHierarchyHeader = getHierarchyHeaderOfCube(cubeServerUri, cubeUniqeName);
@@ -262,9 +269,21 @@ public class ReportEditorBean implements Serializable {
             setIds();
             (new ReportRepository()).save(report);
         }
+        try {
+            sendRefreshReportRequest();
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(ReportEditorBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return "reportChoser.xhtml?faces-redirect=true";
     }
 
+    private void sendRefreshReportRequest() throws Exception {        
+        HttpPost request = new HttpPost(new URL((new URL(reportServerUri)).toExternalForm() + "/refresh").toURI());
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            httpClient.execute(request);            
+        }
+    }
+    
     public String cancel() {
         return "reportChoser.xhtml?faces-redirect=true";
     }

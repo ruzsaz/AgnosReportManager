@@ -8,115 +8,129 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
 
-  <h:head>
-    <meta charset="UTF-8" />
-    <meta name="google" content="notranslate" />
-    <meta http-equiv="Content-Language" content="en_US" />
-    <title>Agnos report editor</title>
-    <c:set var="isHacked" value="#{!login.isPermitted('REPORTADMIN', true)}" scope="request" />
-  </h:head>
+    <h:head>
+        <meta charset="UTF-8" />
+        <meta name="google" content="notranslate" />
+        <meta http-equiv="Content-Language" content="en_US" />
+        <title>Agnos report editor</title>
+        <c:set var="isHacked" value="#{!login.isPermitted('REPORTADMIN', true)}" scope="request" />
+    </h:head>
 
-  <h:body style="background: black; opacity: 0">
+    <h:body style="background: black; opacity: 0">
+        
+        <div id="refreshBlock" style="text-align: center; padding: 8ex 0; font-size: xxx-large; width: 100vw; height: 100vh; display: none; position: fixed; top: 0px; left: 0px; z-index: 9999; background: black; opacity: 0.8;">
+            Restarting... patience!
+        </div>
 
-    <ui:include src="header.xhtml" />      
+        <ui:include src="header.xhtml" />      
 
-    <h2>
-      <h:outputText rendered="true" styleClass="centeredContent" value="Hey, #{login.username}, take care!" />
-    </h2>
-  
+        <h2>
+            <h:outputText rendered="true" styleClass="centeredContent" value="Hey, #{login.username}, take care!" />
+        </h2>
+        
 
+        <h:form id="reportChoserForm" rendered="true">
 
-    <h:form id="reportChoserForm" rendered="true">
+            <p:fieldset legend="Modify a report" toggleable="false">
+                <p:dataTable
+                    paginatorPosition="bottom"
+                    paginator="true"
+                    draggableColumns="false"
+                    widgetVar="existingReportsTable"
+                    rowIndexVar="rowId"
+                    id="existingReportsTable"
+                    emptyMessage="No reports found"
+                    rows="10"          
+                    value="#{reportChoserBean.reports}"          
+                    selectionMode="single"
+                    rowKey="#{item.cubeName}/#{item.name}"
+                    selection="#{reportChoserBean.selectedReport}"          
+                    var="item"          
+                    scrollable="false"
+                    styleClass="searchResultTable"
+                    stickyHeader="false"
+                    rowsPerPageTemplate="10,25,50,100"
+                    currentPageReportTemplate="{startRecord}-{endRecord}, total {totalRecords} reports"
+                    paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
 
-      <p:fieldset legend="Modify a report" toggleable="false">
-        <p:dataTable
-            paginatorPosition="bottom"
-            paginator="true"
-            draggableColumns="false"
-            widgetVar="existingReportsTable"
-            rowIndexVar="rowId"
-            id="existingReportsTable"
-            emptyMessage="No reports found"
-            rows="10"          
-            value="#{reportChoserBean.reports}"          
-            selectionMode="single"
-            rowKey="#{item.cubeName}/#{item.name}"
-            selection="#{reportChoserBean.selectedReport}"          
-            var="item"          
-            scrollable="false"
-            styleClass="searchResultTable"
-            stickyHeader="false"
-            rowsPerPageTemplate="10,25,50,100"
-            currentPageReportTemplate="{startRecord}-{endRecord}, total {totalRecords} reports"
-            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+                    <p:ajax event="rowSelect" listener="#{reportChoserBean.setOldReport()}" process="existingReportsTable" />        
 
-          <p:ajax event="rowSelect" listener="#{reportChoserBean.setOldReport()}" process="existingReportsTable" />        
+                    <p:column            
+                        headerText="Report"
+                        sortBy="#{item.name}"
+                        visible="true"
+                        styleClass="borderL tableBorder"
+                        width="160">
+                        <h:outputLabel value="#{item.name}" style="#{item.broken ? 'color:coral' : ''}"/>
+                    </p:column>
+                    <p:column            
+                        headerText="Data cube"
+                        sortBy="#{item.cubeName}"
+                        visible="true"
+                        styleClass="borderR tableBorder blackBorderInsideL"                        
+                        width="160">
+                        <h:outputLabel value="#{item.cubeName}#{item.broken ? ' (cube missing)' : ''}" style="#{item.broken ? 'color:coral' : ''}"/>
+                    </p:column>
 
-          <p:column            
-              headerText="Report"
-              sortBy="#{item.name}"
-              visible="true"
-              styleClass="borderL tableBorder"
-              width="160">
-            <h:outputLabel value="#{item.name}"/>
-          </p:column>
-          <p:column            
-              headerText="Data cube"
-              sortBy="#{item.cubeName}"
-              visible="true"
-              styleClass="borderR tableBorder blackBorderInsideL"
-              width="160">
-            <h:outputLabel value="#{item.cubeName}"/>
-          </p:column>
+                </p:dataTable>      
 
-        </p:dataTable>      
+                <div class="bottomButtonsDiv">
+                </div>        
 
-        <div class="bottomButtonsDiv">
-        </div>        
+            </p:fieldset>        
 
-      </p:fieldset>        
+            <p:fieldset legend="Create new" toggleable="false">
+                <p:dataTable
+                    paginatorPosition="bottom"
+                    paginator="true"
+                    draggableColumns="false"
+                    widgetVar="NewReportTable"
+                    rowIndexVar="rowId"
+                    id="newReportTable"
+                    emptyMessage="No available base cubes"
+                    rows="10"
+                    value="#{reportChoserBean.cubeNames}"
+                    selectionMode="single"
+                    rowKey="#{item}"
+                    selection="#{reportChoserBean.selectedCubeName}"
+                    var="item"          
+                    scrollable="false"
+                    styleClass="searchResultTable"
+                    stickyHeader="false"
+                    rowsPerPageTemplate="10,25,50,100"
+                    currentPageReportTemplate="{startRecord}-{endRecord}, total {totalRecords} cubes"
+                    paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                    >
 
-      <p:fieldset legend="Create new" toggleable="false">
-        <p:dataTable
-            paginatorPosition="bottom"
-            paginator="true"
-            draggableColumns="false"
-            widgetVar="NewReportTable"
-            rowIndexVar="rowId"
-            id="newReportTable"
-            emptyMessage="No available base cubes"
-            rows="10"
-            value="#{reportChoserBean.cubeNames}"
-            selectionMode="single"
-            rowKey="#{item}"
-            selection="#{reportChoserBean.selectedCubeName}"
-            var="item"          
-            scrollable="false"
-            styleClass="searchResultTable"
-            stickyHeader="false"
-            rowsPerPageTemplate="10,25,50,100"
-            currentPageReportTemplate="{startRecord}-{endRecord}, total {totalRecords} cubes"
-            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-            >
+                    <p:ajax event="rowSelect" listener="#{reportChoserBean.setNewReportSource()}" process="newReportTable" />                
 
-          <p:ajax event="rowSelect" listener="#{reportChoserBean.setNewReportSource()}" process="newReportTable" />                
+                    <p:column            
+                        headerText="Base cube"
+                        sortBy="#{item}"
+                        visible="true"
+                        styleClass="borderL borderR tableBorder"
+                        width="160">
+                        <h:outputLabel value="#{item}"/>
+                    </p:column>
 
-          <p:column            
-              headerText="Base cube"
-              sortBy="#{item}"
-              visible="true"
-              styleClass="borderL borderR tableBorder"
-              width="160">
-            <h:outputLabel value="#{item}"/>
-          </p:column>
+                </p:dataTable>            
 
-        </p:dataTable>            
+                <div class="bottomButtonsDiv">
+                    <p:commandButton
+                        ajax="false"
+                        rendered="true"
+                        disabled="false"
+                        process=":reportForm"
+                        value="Restart Servers"
+                        update=":reportForm"
+                        onclick="$('#refreshBlock').css('display', 'block')"
+                        action="#{reportChoserBean.sendRefreshCubesRequest}"
+                        styleClass="cancelButton">
+                    </p:commandButton>
+                </div>        
 
-        <div class="bottomButtonsDiv">
-        </div>        
+            </p:fieldset>
 
-      </p:fieldset>
-
-    </h:form>
-  </h:body>
+        </h:form>
+    </h:body>
 </html>
