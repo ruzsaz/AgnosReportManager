@@ -5,8 +5,8 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 @WebListener
 public class SessionTimeoutListener implements HttpSessionListener, Serializable {
 
-    private static final Logger LOGGER = LogManager.getLogger(SessionTimeoutListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionTimeoutListener.class);
     
     @Override
     public void sessionCreated(HttpSessionEvent se) {

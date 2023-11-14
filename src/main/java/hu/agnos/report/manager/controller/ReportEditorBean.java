@@ -1,13 +1,16 @@
 package hu.agnos.report.manager.controller;
 
-import hu.agnos.cube.meta.dto.HierarchyDTO;
-import hu.agnos.cube.meta.dto.LevelDTO;
-import hu.agnos.cube.meta.http.CubeClient;
-import hu.agnos.report.entity.ExtraCalculation;
-import hu.agnos.report.entity.Measure;
+import hu.agnos.cube.meta.resultDto.CubeList;
+import hu.agnos.cube.meta.resultDto.CubeMetaDTO;
+import hu.agnos.cube.meta.resultDto.DimensionDTO;
+import hu.agnos.cube.meta.resultDto.LevelDTO;
+import hu.agnos.report.entity.Cube;
+import hu.agnos.report.entity.Dimension;
+import hu.agnos.report.entity.Indicator;
 
 import hu.agnos.report.entity.Report;
 import hu.agnos.report.entity.Visualization;
+import hu.agnos.report.manager.service.CubeService;
 import hu.agnos.report.repository.ReportRepository;
 import java.io.IOException;
 import java.io.Serializable;
@@ -15,16 +18,20 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import javax.faces.view.ViewScoped;
@@ -41,19 +48,19 @@ import org.keycloak.representations.idm.RoleRepresentation;
 public class ReportEditorBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LogManager.getLogger(ReportEditorBean.class);   //!< Log kezelő
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportEditorBean.class);   //!< Log kezelő
 
     private String cubeServerUri;
     private String reportServerUri;
 
-    private String cubeUniqeName;
-    private String reportUniqeName;
-    private Report report;
+    private CubeList cubeList;  // List of available cubes
+    private Report report;  // The currently edited report
 
     private int editedLang;
     private boolean deleteReport;
-    private String[] hierarchyHeader;
-    private String[] measureHeader;
+    private List<String> availableDimensionNames;
+    private List<String> availableIndicatorNames;
+    private List<String> availableCubeNames;
     private List<String> roles;
 
     @PostConstruct
@@ -62,59 +69,115 @@ public class ReportEditorBean implements Serializable {
         Config config = ConfigProvider.getConfig();
 
         this.cubeServerUri = config.getValue("cube.server.uri", String.class);
-        this.reportServerUri = config.getValue("report.server.uri", String.class);       
+        this.reportServerUri = config.getValue("report.server.uri", String.class);
         this.roles = getAllRoles();
         this.deleteReport = false;
-        this.cubeUniqeName = null;
-        Map<String, Object> parameters = FacesContext.getCurrentInstance().getExternalContext().getFlash();        
-        this.cubeUniqeName = parameters.get("cubeName").toString();
+        Map<String, Object> parameters = FacesContext.getCurrentInstance().getExternalContext().getFlash();
+        this.cubeList = CubeService.getCubeList(cubeServerUri);
+        initAvailableCubeNames();
         this.editedLang = 0;
-        Optional<String[]> optHierarchyHeader = getHierarchyHeaderOfCube(cubeServerUri, cubeUniqeName);
-        if (optHierarchyHeader.isPresent()) {
-            this.hierarchyHeader = optHierarchyHeader.get();
-        }
-
-        Optional<String[]> optMeasureHeader = getMeasureHeaderOfCube(cubeServerUri, cubeUniqeName);
-        if (optMeasureHeader.isPresent()) {
-            this.measureHeader = optMeasureHeader.get();
-        }
 
         if (parameters.get("reportName") == null) { // Ha új reportról van szó
             this.report = new Report();
             this.report.addLanguage("");
-            this.report.setCubeName(cubeUniqeName);
+            this.report.setCubes(new ArrayList<>(2));
             this.report.setDatabaseType("AGNOS_MOLAP");
-            addHierarchy();
-            addIndicator();
-            addVisualization();
         } else { // Ha régiről
-            this.reportUniqeName = parameters.get("reportName").toString();
-            Optional<Report> optReport = (new ReportRepository()).findById(cubeUniqeName, reportUniqeName);
+            String reportName = parameters.get("reportName").toString();
+            Optional<Report> optReport = (new ReportRepository()).findByName(reportName);
             if (optReport.isPresent()) {
-                this.report = optReport.get();
-                if (report.getHierarchies().isEmpty()) {
-                    addHierarchy();
-                }
-                if (report.getIndicators().isEmpty()) {
-                    addIndicator();
-                }
-                if (report.getVisualizations().isEmpty()) {
-                    addVisualization();
-                }
+                this.report = optReport.get();                
+            }
+        }
+        initAvailableDimensionNames();
+        initAvailableIndicatorNames();
+        addIfEmpty();
+    }
+
+    public void onCubeChange() {
+        initAvailableDimensionNames();
+        initAvailableIndicatorNames();
+        validateDimensions();
+        validateIndicators();
+        addIfEmpty();
+    }
+
+    public List<String> getAvailableCubeNames() {
+        return availableCubeNames;
+    }
+
+    private void initAvailableCubeNames() {
+        this.availableCubeNames = new ArrayList<>(cubeList.cubeMap().keySet());
+        java.util.Collections.sort(availableCubeNames);
+    }
+
+    public List<String> getAvailableIndicatorNames() {
+        return availableIndicatorNames;
+    }
+
+    private Map<String, CubeMetaDTO> getAvailableCubesMap() {
+        return cubeList.cubeMap().entrySet()
+                .stream()
+                .filter(a -> report.getCubeNames().contains(a.getKey()))
+                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+
+    }
+
+    private void initAvailableIndicatorNames() {
+        this.availableIndicatorNames = new ArrayList<>(10);
+        for (Entry<String, CubeMetaDTO> cubeEntry : getAvailableCubesMap().entrySet()) {
+            String cubeName = cubeEntry.getKey();
+            for (String indicatorName : cubeEntry.getValue().measureHeader()) {
+                availableIndicatorNames.add(cubeName + "." + indicatorName);
+            }
+        }
+        java.util.Collections.sort(availableIndicatorNames);
+    }
+
+    public List<String> getAvailableDimensionNames() {
+        return availableDimensionNames;
+    }
+
+    private void initAvailableDimensionNames() {
+        Set<String> availableDimensionNamesSet = new HashSet<>(8);
+        for (CubeMetaDTO cubeMeta : getAvailableCubesMap().values()) {
+            for (DimensionDTO dimDTO : cubeMeta.dimensionHeader()) {
+                availableDimensionNamesSet.add(dimDTO.name());
+            }
+        }
+        availableDimensionNames = new ArrayList<>(availableDimensionNamesSet);
+        java.util.Collections.sort(availableDimensionNames);
+    }
+
+    /**
+     * Removes all dimensions whose cube is not present
+     */
+    private void validateDimensions() {
+        Iterator<Dimension> i = report.getDimensions().iterator();
+        while (i.hasNext()) {
+            Dimension d = i.next();
+            if (!availableDimensionNames.contains(d.getName())) {
+                i.remove();
+            }
+
+        }
+    }
+
+    /**
+     * Removes all indicators whose cube is not present
+     */
+    private void validateIndicators() {
+        Iterator<Indicator> i = report.getIndicators().iterator();
+        while (i.hasNext()) {
+            Indicator in = i.next();
+            if (!availableIndicatorNames.contains(in.getCombinedValueName()) || !availableIndicatorNames.contains(in.getCombinedDenominatorName())) {
+                i.remove();
             }
         }
     }
 
     public List<String> getRoles() {
         return roles;
-    }
-        
-    public String getReportUniqeName() {
-        return reportUniqeName;
-    }
-
-    public void setReportUniqeName(String reportUniqeName) {
-        this.reportUniqeName = reportUniqeName;
     }
 
     public Report getReport() {
@@ -133,39 +196,50 @@ public class ReportEditorBean implements Serializable {
         this.editedLang = editedLang;
     }
 
-    public String getCubeUniqeName() {
-        return cubeUniqeName;
+    public CubeList getCubeList() {
+        return cubeList;
     }
 
-    public String[] getHierarchyHeader() {
-        return hierarchyHeader;
+    public void setCubeList(CubeList cubeList) {
+        this.cubeList = cubeList;
     }
 
-    public void setHierarchyHeader(String[] hierarchyHeader) {
-        this.hierarchyHeader = hierarchyHeader;
+    public void moveDimension(int index, int direction) {
+        Collections.swap(report.getDimensions(), index, index + direction);
     }
 
-    public String[] getMeasureHeader() {
-        return measureHeader;
+    public void removeDimension(int index) {
+        report.getDimensions().remove(index);
+        addIfEmpty();
     }
 
-    public void setMeasureHeader(String[] measureHeader) {
-        this.measureHeader = measureHeader;
+    public void addDimension() {
+        report.getDimensions().add(new Dimension(report.getLabels()));
     }
 
-    public void moveHierarchy(int index, int direction) {
-        Collections.swap(report.getHierarchies(), index, index + direction);
+    public void moveCube(int index, int direction) {
+        Collections.swap(report.getCubes(), index, index + direction);
     }
 
-    public void removeHierarchy(int index) {
-        report.getHierarchies().remove(index);
-        if (report.getHierarchies().isEmpty()) {
-            addHierarchy();
-        }
+    public void removeCube(int index) {
+        report.getCubes().remove(index);
+        onCubeChange();
     }
 
-    public void addHierarchy() {
-        report.getHierarchies().add(new hu.agnos.report.entity.Hierarchy(getLanguageCount()));
+    public void addCube() {
+        report.getCubes().add(new Cube("", "ZolikaOkos"));
+    }
+
+    /**
+     * Sets a cube as the report's base cube. The cube's name is already filled
+     * when this method starts, but only its name. This method restores the
+     * whole cube object.
+     *
+     * @param index The index of the cube to set.
+     */
+    public void setCube(int index) {
+        report.getCubes().get(index).setDatabaseType("AGNOS_MOLAP");
+        onCubeChange();
     }
 
     /**
@@ -174,18 +248,9 @@ public class ReportEditorBean implements Serializable {
      *
      * @param index Az állítandó hierarchia report-beli sorszáma.
      */
-    public void setHierarchyFromCube(int index) {
-        hu.agnos.report.entity.Hierarchy h = report.getHierarchies().get(index);
-        Optional<HierarchyDTO> optHierarchyDTO = getHierarchy(cubeServerUri, cubeUniqeName, h.getHierarchyUniqueName());
-        if (optHierarchyDTO.isPresent()) {
-            List<LevelDTO> lFromSet = optHierarchyDTO.get().getLevels();
-            h.setLevels(new ArrayList<>());
-
-            for (LevelDTO l : lFromSet) {
-                h.getLevels().add(new hu.agnos.report.entity.Level(l.getDepth(), l.getIdColumnName(), l.getCodeColumnName(), l.getNameColumnName()));
-            }
-            h.setAllowedDepth(h.getLevels().size() - 1);
-        }
+    public void setDimensionAtIndex(int index) {
+        Dimension halfSetDimension = report.getDimensions().get(index);
+        halfSetDimension.setAllowedDepth(getLevels(halfSetDimension).size() - 1);
     }
 
     public void moveIndicator(int index, int direction) {
@@ -194,15 +259,11 @@ public class ReportEditorBean implements Serializable {
 
     public void removeIndicator(int index) {
         report.getIndicators().remove(index);
-        if (report.getIndicators().isEmpty()) {
-            addIndicator();
-        }
+        addIfEmpty();
     }
 
     public void addIndicator() {
-        Measure value = new Measure(getLanguageCount(), "", 0, false);
-        Measure denominator = new Measure(getLanguageCount(), "", 0, false);
-        report.getIndicators().add(new hu.agnos.report.entity.Indicator(getLanguageCount(), 0, value, denominator, 1.0));
+        report.addIndicator(new Indicator(report.getLabels()));
     }
 
     public int getLanguageCount() {
@@ -215,29 +276,11 @@ public class ReportEditorBean implements Serializable {
 
     public void removeVisualization(int index) {
         report.getVisualizations().remove(index);
-        if (report.getVisualizations().isEmpty()) {
-            addVisualization();
-        }
+        addIfEmpty();
     }
 
     public void addVisualization() {
         report.getVisualizations().add(new Visualization(""));
-    }
-
-    /**
-     * Beállítja a sorrendet meghatározó id-ket (hierarchiák, indikátorok és
-     * megjelenítés) a képernyő-beli sorrend alapján.
-     */
-    public void setIds() {
-        for (int i = 0; i < report.getHierarchies().size(); i++) {
-            report.getHierarchies().get(i).setId(i);
-        }
-        for (int i = 0; i < report.getIndicators().size(); i++) {
-            report.getIndicators().get(i).setId(i);
-        }
-        for (int i = 0; i < report.getVisualizations().size(); i++) {
-            report.getVisualizations().get(i).setOrder(i);
-        }
     }
 
     public void removeEditedLanguage() {
@@ -247,26 +290,20 @@ public class ReportEditorBean implements Serializable {
         }
     }
 
+    /**
+     * Adds a new language to the report, with the default ??? language code.
+     */
     public void addLanguage() {
         report.addLanguage("???");
     }
 
-    public void setExtracalculationForIndicator(int indicatorIndex) {
-        for (int i = 0; i < report.getIndicators().size(); i++) {
-            if (i != indicatorIndex) {
-                ExtraCalculation exCal = report.getIndicators().get(i).getExtraCalculation();
-                exCal.setArgs("");
-                exCal.setFunction("");
-            }
-        }
-        report.getIndicators().get(indicatorIndex).getExtraCalculation().setFunction("KaplanMeier");
-    }
-    
     public String save() throws IOException, SQLException {
         if (deleteReport) {
             (new ReportRepository()).delete(report);
         } else {
-            setIds();
+            spreadLanguages();
+            validateDimensions();
+            validateIndicators();
             (new ReportRepository()).save(report);
         }
         try {
@@ -277,13 +314,30 @@ public class ReportEditorBean implements Serializable {
         return "reportChoser.xhtml?faces-redirect=true";
     }
 
-    private void sendRefreshReportRequest() throws Exception {        
-        HttpPost request = new HttpPost(new URL((new URL(reportServerUri)).toExternalForm() + "/refresh").toURI());
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            httpClient.execute(request);            
+    /**
+     * Spreads the report's language codes to the indicators, dimensions, helps,
+     * so they will reflect the same.
+     */
+    private void spreadLanguages() {
+        for (int i = 0; i < report.getLanguageCount(); i++) {
+            String lang = report.getLabels().get(i).getLang();
+            report.getHelps().get(i).setLang(lang);
+            for (Dimension dimension : report.getDimensions()) {
+                dimension.getMultilingualization().get(i).setLang(lang);
+            }
+            for (Indicator indicator : report.getIndicators()) {
+                indicator.getMultilingualization().get(i).setLang(lang);
+            }
         }
     }
-    
+
+    private void sendRefreshReportRequest() throws Exception {
+        HttpPost request = new HttpPost(new URL((new URL(reportServerUri)).toExternalForm() + "/refresh").toURI());
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            httpClient.execute(request);
+        }
+    }
+
     public String cancel() {
         return "reportChoser.xhtml?faces-redirect=true";
     }
@@ -300,21 +354,8 @@ public class ReportEditorBean implements Serializable {
         return deleteReport;
     }
 
-    private Optional<HierarchyDTO> getHierarchy(String cubeServerUri, String cubeUniqeName, String hierarchyUniqueName) {
-        return (new CubeClient(cubeServerUri)).getHierarchy(cubeUniqeName, hierarchyUniqueName);
-    }
-
-    private Optional<String[]> getHierarchyHeaderOfCube(String cubeServerUri, String cubeUniqeName) {
-        return (new CubeClient(cubeServerUri)).getHierarchyHeaderOfCube(cubeUniqeName);
-    }
-
-    private Optional<String[]> getMeasureHeaderOfCube(String cubeServerUri, String cubeUniqeName) {
-        return (new CubeClient(cubeServerUri)).getMeasureHeaderOfCube(cubeUniqeName);
-    }
-    
     private List<String> getAllRoles() {
-        
-        Config config = ConfigProvider.getConfig();        
+        Config config = ConfigProvider.getConfig();
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(config.getValue("keycloak.serverurl", String.class))
                 .realm("master")
@@ -323,9 +364,66 @@ public class ReportEditorBean implements Serializable {
                 .username(config.getValue("keycloak.username", String.class))
                 .password(config.getValue("keycloak.password", String.class))
                 .build();
-        
         List<RoleRepresentation> roleRepresentation = keycloak.realm(config.getValue("keycloak.realm", String.class)).roles().list();
-        return roleRepresentation.stream().map(rr -> rr.getName()).collect(Collectors.toList());                        
+        return roleRepresentation.stream().map(rr -> rr.getName()).collect(Collectors.toList());
     }
-    
+
+    public int getMaxDepth(Dimension d) {
+        return getMatchingDimensionsFromCubes(d)
+                .stream()
+                .map(DimensionDTO::maxDepth)
+                .reduce(Math::max)
+                .orElse(-1);
+    }
+
+    public List<String> getLevels(Dimension d) {
+        List<String> result = new ArrayList<>(4);
+        if (d != null) {
+            List<DimensionDTO> matchingDimensionsFromCubes = getMatchingDimensionsFromCubes(d);
+            for (DimensionDTO dto : matchingDimensionsFromCubes) {
+                List<String> newLevels = dto.levels().stream().map(LevelDTO::name).toList();
+                for (int i = result.size(); i < newLevels.size(); i++) {
+                    result.add(newLevels.get(i));
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Gets the name-matching dimensionDTOs from the cubes currently the report
+     * is based on.
+     *
+     * @param dimension Dimension in the report to process
+     * @return List of matching dimensionDTOs.
+     */
+    private List<DimensionDTO> getMatchingDimensionsFromCubes(Dimension dimension) {
+        String dimensionName = dimension.getName();
+        List<DimensionDTO> result = new ArrayList<>(report.getCubes().size());
+        for (Cube cube : report.getCubes()) {
+            CubeMetaDTO cubeMetaDTO = cubeList.cubeMap().get(cube.getName());
+            for (DimensionDTO dimensionDTO : cubeMetaDTO.dimensionHeader()) {
+                if (dimensionDTO.name().equals(dimensionName)) {
+                    result.add(dimensionDTO);
+                }
+            }
+        }
+        return result;
+    }
+
+    private void addIfEmpty() {
+        if (report.getCubes().isEmpty()) {
+            addCube();
+        }
+        if (report.getDimensions().isEmpty()) {
+            addDimension();
+        }
+        if (report.getIndicators().isEmpty()) {
+            addIndicator();
+        }
+        if (report.getVisualizations().isEmpty()) {
+            addVisualization();
+        }
+    }
+
 }

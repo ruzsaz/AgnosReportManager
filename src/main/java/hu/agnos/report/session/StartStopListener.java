@@ -2,8 +2,8 @@ package hu.agnos.report.session;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -11,16 +11,16 @@ import org.apache.logging.log4j.Logger;
  */
 public class StartStopListener implements ServletContextListener {
 
-    private static final Logger LOGGER = LogManager.getLogger(StartStopListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StartStopListener.class);
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        LOGGER.info(() -> "contextInitialized");
+        LOGGER.info("contextInitialized");
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        LOGGER.info(() -> "contextDestroyed");
+        LOGGER.info("contextDestroyed");
     }
     
 }

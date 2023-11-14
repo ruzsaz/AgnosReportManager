@@ -1,14 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package hu.agnos.report.session;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -21,9 +15,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.primefaces.context.RequestContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wildfly.security.http.oidc.OidcPrincipal;
 
 /**
@@ -35,7 +29,7 @@ import org.wildfly.security.http.oidc.OidcPrincipal;
 public class Login implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LogManager.getLogger(Login.class);   //!< Log kezelő
+    private static final Logger LOGGER = LoggerFactory.getLogger(Login.class);   //!< Log kezelő
 
     private String userName;
     private String password;

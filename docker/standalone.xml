@@ -136,20 +136,9 @@
                         <password>sa</password>
                     </security>
                 </datasource>
-                <datasource jndi-name="java:jboss/datasources/ONKO" pool-name="ONKO">
-                    <connection-url>jdbc:postgresql://192.168.109.7:5433/postgres</connection-url>
-                    <driver>postgres</driver>
-                    <security>
-                        <user-name>postgres</user-name>
-                        <password>postgress</password>
-                    </security>
-                </datasource>
                 <drivers>
                     <driver name="h2" module="com.h2database.h2">
                         <xa-datasource-class>org.h2.jdbcx.JdbcDataSource</xa-datasource-class>
-                    </driver>
-                    <driver name="postgres" module="org.postgresql">
-                        <driver-class>org.postgresql.Driver</driver-class>
                     </driver>
                 </drivers>
             </datasources>
@@ -476,7 +465,6 @@
                 <https-listener name="https" socket-binding="https" ssl-context="applicationSSC" enable-http2="true"/>
                 <host name="default-host" alias="localhost">
                     <location name="/" handler="welcome-content"/>
-                    <location name="/licenses" handler="licenses"/>
                     <http-invoker http-authentication-factory="application-http-authentication"/>
                 </host>
             </server>
@@ -486,7 +474,6 @@
             </servlet-container>
             <handlers>
                 <file name="welcome-content" path="${jboss.home.dir}/welcome-content"/>
-                <file name="licenses" path="/home/ruzsaz/NetBeansProjects/analysis-manager/licenses" directory-listing="false"/>
             </handlers>
             <application-security-domains>
                 <application-security-domain name="other" security-domain="ApplicationDomain"/>
