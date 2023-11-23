@@ -86,7 +86,7 @@ public class ReportEditorBean implements Serializable {
             String reportName = parameters.get("reportName").toString();
             Optional<Report> optReport = (new ReportRepository()).findByName(reportName);
             if (optReport.isPresent()) {
-                this.report = optReport.get();                
+                this.report = optReport.get();
             }
         }
         initAvailableDimensionNames();
@@ -228,6 +228,7 @@ public class ReportEditorBean implements Serializable {
 
     public void addCube() {
         report.getCubes().add(new Cube("", "ZolikaOkos"));
+        onCubeChange();
     }
 
     /**
@@ -389,7 +390,39 @@ public class ReportEditorBean implements Serializable {
         }
         return result;
     }
-
+    
+    /**
+     * Gets the available dimensions' names in a Cube.
+     * 
+     * @param c Cube to look for dimensions
+     * @return List of dimension names
+     */
+    public String[] getDimensionNames(Cube c) {
+        if (c != null) {
+            CubeMetaDTO cubeDTO = cubeList.cubeMap().get(c.getName());
+            if (cubeDTO != null) {
+                return cubeDTO.dimensionHeader().stream().map(DimensionDTO::name).toArray(String[]::new);
+            }
+        }
+        return new String[0];
+    }
+    
+    /**
+     * Gets the available measures' names in a Cube.
+     * 
+     * @param c Cube to look for measures
+     * @return List of measure names
+     */
+    public String[] getMeasureNames(Cube c) {
+        if (c != null) {
+            CubeMetaDTO cubeDTO = cubeList.cubeMap().get(c.getName());
+            if (cubeDTO != null) {
+                return cubeDTO.measureHeader();
+            }
+        }
+        return new String[0];
+    }
+    
     /**
      * Gets the name-matching dimensionDTOs from the cubes currently the report
      * is based on.
@@ -402,9 +435,11 @@ public class ReportEditorBean implements Serializable {
         List<DimensionDTO> result = new ArrayList<>(report.getCubes().size());
         for (Cube cube : report.getCubes()) {
             CubeMetaDTO cubeMetaDTO = cubeList.cubeMap().get(cube.getName());
-            for (DimensionDTO dimensionDTO : cubeMetaDTO.dimensionHeader()) {
-                if (dimensionDTO.name().equals(dimensionName)) {
-                    result.add(dimensionDTO);
+            if (cubeMetaDTO != null) {
+                for (DimensionDTO dimensionDTO : cubeMetaDTO.dimensionHeader()) {
+                    if (dimensionDTO.name().equals(dimensionName)) {
+                        result.add(dimensionDTO);
+                    }
                 }
             }
         }

@@ -32,18 +32,56 @@
 
         <h:form id="reportForm" rendered="#{!isHacked}">
 
-            <p:fieldset legend="#{reportEditorBean.deleteReport ? 'Are you sure?' : 'Base cube'}" toggleable="false">
-                <p:outputLabel value="#{reportEditorBean.deleteReport ? 'Click \'Save\' to delete report for good...' : 'KUKA'}" escape="false" />
-                <p:commandButton
-                    ajax="true"
-                    rendered="true"
-                    disabled="false"
-                    process=":reportForm"
-                    value="#{reportEditorBean.deleteReport ? 'Undelete' : 'Delete report'}"
-                    update=":reportForm"
-                    action="#{reportEditorBean.toggleDelete}"
-                    styleClass="deleteReportButton">
-                </p:commandButton>
+            <p:fieldset legend="#{reportEditorBean.deleteReport ? 'Are you sure?' : 'Report'}" toggleable="false">
+                
+                <p:panelGrid style="width:100%" styleClass="customBorder">  
+                                                                           
+                    <p:column style="#{reportEditorBean.deleteReport ? 'width:100%' : 'width: 1%'}" styleClass="borderL borderT borderB">
+                        <p:outputLabel value="#{reportEditorBean.deleteReport ? 'Click \'Save\' to delete report for good...' : ''}" escape="false" />
+                        <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Identifier" />
+                    </p:column>
+                    <p:column style="width:20%" styleClass="borderT borderB">
+                        <p:inputText 
+                              rendered="#{!reportEditorBean.deleteReport}"
+                              value="#{reportEditorBean.report.name}"                    
+                              maxlength="50"
+                              styleClass="textField"
+                              disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                              title="A report unique name (if you change this, a new report will be created)" />                
+                    </p:column>
+                    <p:column style="width:1%" styleClass="borderT borderB">
+                        <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Security&nbsp;group" />
+                    </p:column>
+                    <p:column style="width:20%" styleClass="borderT borderB">
+                        <p:selectOneMenu
+                              rendered="#{!reportEditorBean.deleteReport}"
+                              value="#{reportEditorBean.report.roleToAccess}"
+                              filter="true"
+                              filterMatchMode="contains"
+                              autoWidth="false"
+                              styleClass="selectOneField"
+                              disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                              title="Only members of this group can access this report.">
+                            <f:selectItem itemLabel="-- Chose a group --" itemValue="" itemDisabled="true"/>
+                            <f:selectItems value="#{reportEditorBean.roles}" var="role" itemLabel="#{role}" itemValue="#{role}"/>
+                        </p:selectOneMenu>
+                    </p:column> 
+
+                    <p:column style="width:1%" styleClass="borderT borderB borderR">
+                        <p:commandButton
+                            ajax="true"
+                            rendered="true"
+                            disabled="false"
+                            process=":reportForm"
+                            value="#{reportEditorBean.deleteReport ? 'Undelete' : 'Delete report'}"
+                            update=":reportForm"
+                            action="#{reportEditorBean.toggleDelete}"
+                            styleClass="deleteReportButton">
+                        </p:commandButton>
+                    </p:column> 
+                
+                </p:panelGrid>
+                
             </p:fieldset>
 
             <p:fieldset id="cubesField" legend="Base cubes" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
@@ -54,7 +92,7 @@
 
                         <p:row>   
 
-                            <p:column style="width:100%" styleClass="borderL borderT borderR borderB">
+                            <p:column colspan="1" style="width: 33%" styleClass="borderL borderT borderB">
                                 <p:outputLabel>Base cube #{loop.index + 1}</p:outputLabel>
                                 <br />
                                 <p:selectOneMenu                          
@@ -64,13 +102,32 @@
                                     styleClass="selectOneField"
                                     disabled="#{!(reportEditorBean.editedLang eq 0)}"
                                     title="Cube the report based on">
-                                    <f:selectItem itemLabel="-- chose a cube --" itemValue="" itemDisabled="true"/>
+                                    <f:selectItem itemLabel="-- chose a cube --" itemValue="" itemDisabled="false" noSelectionOption="true"/>
                                     <f:selectItems value="#{reportEditorBean.availableCubeNames}" var="cubeName" itemLabel="#{cubeName}" itemValue="#{cubeName}"/>
                                     <p:ajax process="@this" listener="#{reportEditorBean.setCube(loop.index)}" update=":reportForm" />
                                 </p:selectOneMenu>           
                                 <br />
                                 <br />
                             </p:column>
+                            
+                            <p:column colspan="1" styleClass="borderT borderB" style="width: 33%">
+                                <p:dataList  value="#{reportEditorBean.getDimensionNames(cube)}" var="dim" varStatus="loop2" type="definition" emptyMessage="No&nbsp;cube&nbsp;selected" >
+                                    <p:outputLabel
+                                        value="#{dim}"
+                                        style="width:100%"                                        
+                                        title="Available dimensions in the cube"/>
+                                </p:dataList>
+                            </p:column>
+
+                            <p:column colspan="1" styleClass="borderT borderB borderR" style="width: 33%">
+                                <p:dataList  value="#{reportEditorBean.getMeasureNames(cube)}" var="measure" varStatus="loop2" type="definition" emptyMessage="No&nbsp;cube&nbsp;selected" >
+                                    <p:outputLabel
+                                        value="#{measure}"
+                                        style="width:100%"                                        
+                                        title="Available measures in the cube"/>
+                                </p:dataList>
+                            </p:column>
+                            
                             <p:column styleClass="transparentBackground rightButtons">
                                 <p:commandButton
                                     process=":reportForm:cubesField"
@@ -174,22 +231,26 @@
 
 
 
-            <p:fieldset legend="Report" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
+            <p:fieldset legend="Report meta" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
 
                 <p:panelGrid style="width:100%" styleClass="customBorder">  
 
                   <p:row>   
         
                     <p:column style="width:1%" styleClass="borderL borderT">
-                      <label>Report&nbsp;identifier</label>
+                      <label>Language&nbsp;code</label>
                     </p:column>
                     <p:column style="width:1%" styleClass="borderT">
-                      <p:inputText 
-                          value="#{reportEditorBean.report.name}"                    
-                          maxlength="50"
+                      <p:inputText
+                          id="languageInputText"
+                          value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].lang}"                    
                           styleClass="textField"
-                          disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                          title="A report unique name (if you change this, a new report will be created)" />                
+                          maxlength="6"
+                          disabled="#{reportEditorBean.editedLang eq 0}"
+                          placeholder="#{reportEditorBean.editedLang eq 0 ? '' : '???'}"
+                          title="Language of the report. The first language acts as default, it's code should be empty." >
+                        <p:ajax event="change" process="@this" update=":reportForm:languageField" />
+                      </p:inputText>              
                     </p:column>
                     <p:column rowspan="3" style="width:100%" styleClass="borderT borderB">
                     </p:column>            
@@ -199,7 +260,7 @@
                     <p:column style="width:1%" styleClass="borderR borderT">
                       <p:inputText 
                           value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].caption}"
-                          styleClass="textField"
+                          styleClass="textFieldBig"
                           maxlength="200"
                           placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].caption}"
                           title="Short label describing the report" />                
@@ -210,19 +271,15 @@
                   <p:row>
         
                     <p:column style="width:1%" styleClass="borderL">
-                      <label>Language&nbsp;code</label>
+                      <label>Data&nbsp;source&nbsp;name</label>
                     </p:column>
                     <p:column style="width:1%">
-                      <p:inputText
-                          id="languageInputText"
-                          value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].lang}"                    
+                      <p:inputText                   
+                          value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].datasource}"
                           styleClass="textField"
-                          maxlength="6"
-                          disabled="#{reportEditorBean.editedLang eq 0}"
-                          placeholder="#{reportEditorBean.editedLang eq 0 ? '' : '???'}"
-                          title="Language of the report. The first language acts as default, it's code should be empty." >
-                        <p:ajax event="change" process="@this" update=":reportForm:languageField" />
-                      </p:inputText>
+                          maxlength="30"
+                          placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].datasource}"
+                          title="Short label of the data source" />   
                     </p:column>
                     <p:column style="width:1%">
                       <label>Longer&nbsp;description</label>
@@ -230,47 +287,14 @@
                     <p:column style="width:1%" styleClass="borderR">
                       <p:inputText
                           value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].description}"
-                          styleClass="textField"
+                          styleClass="textFieldBig"
                           maxlength="2000"
                           placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].description}"
                           title="Longer description of the report. Acts as tooltip on the reports' page." />
                     </p:column>
         
                   </p:row>
-        
                   <p:row>
-        
-                    <p:column style="width:1%" styleClass="borderL">
-                      <label>Security&nbsp;group</label>
-                    </p:column>
-                    <p:column style="width:1%">
-                      <p:selectOneMenu
-                          value="#{reportEditorBean.report.roleToAccess}"
-                          filter="true"
-                          filterMatchMode="contains"
-                          autoWidth="false"
-                          styleClass="selectOneField"
-                          disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                          title="Only members of this group can access this report.">
-                        <f:selectItem itemLabel="-- Chose a group --" itemValue="" itemDisabled="true"/>
-                        <f:selectItems value="#{reportEditorBean.roles}" var="role" itemLabel="#{role}" itemValue="#{role}"/>
-                      </p:selectOneMenu>
-                    </p:column> 
-                    <p:column style="width:5%">
-                      <label>Data&nbsp;source&nbsp;name</label>
-                    </p:column>
-                    <p:column style="width:1%" styleClass="borderR">
-                      <p:inputText                   
-                          value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].datasource}"
-                          styleClass="textField"
-                          maxlength="30"
-                          placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].datasource}"
-                          title="Short label of the data source" />                
-                    </p:column>
-        
-                  </p:row>
-        
-                  <p:row> 
         
                     <p:column colspan="7" style="width:5%" styleClass="borderL borderB borderR">  
                       <label>Long description of the report, appears on the help page.</label>
@@ -299,7 +323,7 @@
 
                         <p:row>
                             <p:column colspan="3" styleClass="borderL borderT">
-                                <label>Dimension</label>
+                                <p:outputLabel>Dimension #{loop.index + 1}</p:outputLabel>
                             </p:column>
                             <p:column colspan="1" style="width:50%" styleClass="borderT">
                                 <p:selectOneMenu                          
@@ -431,7 +455,9 @@
                                     multiple="true"
                                     updateLabel="true"
                                     disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                                    style="min-width: 15rem" panelStyle="width: 30rem"
+                                    style="min-width: 15rem; height: 31px; padding: 2px 0px 2px 2px"
+                                    panelStyle="width: 30rem"
+                                    styleClass="selectOneField"
                                     value="#{dimension.transparentInCubes}">                                    
                                     <f:selectItems value="#{reportEditorBean.report.cubes}" var="cube" itemValue="#{cube.name}" itemLabel="#{cube.name}"/>
                                 </p:selectCheckboxMenu>
@@ -561,6 +587,7 @@
                             styleClass="selectOneFieldBig"
                             title="Value of the indicator (chose from the columns of the data cube)">
                             <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="false"/>
+                            <f:selectItem itemLabel="1" itemValue="1" itemDisabled="false" noSelectionOption="false"/>
                             <f:selectItems value="#{reportEditorBean.availableIndicatorNames}" var="h" itemLabel="#{h}" itemValue="#{h}"/>                  
                         </p:selectOneMenu>   
                       </p:column>                      
@@ -615,6 +642,7 @@
                             styleClass="selectOneFieldBig"
                             title="Divisor of the prorated value (chose from the columns of the data cube)">
                             <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="true"/>
+                            <f:selectItem itemLabel="1" itemValue="1" itemDisabled="false" noSelectionOption="false"/>
                             <f:selectItems value="#{reportEditorBean.availableIndicatorNames}" var="h" itemLabel="#{h}" itemValue="#{h}"/>
                         </p:selectOneMenu>   
                       </p:column>        
