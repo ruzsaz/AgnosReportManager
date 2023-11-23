@@ -81,7 +81,6 @@ public class ReportEditorBean implements Serializable {
             this.report = new Report();
             this.report.addLanguage("");
             this.report.setCubes(new ArrayList<>(2));
-            this.report.setDatabaseType("AGNOS_MOLAP");
         } else { // Ha régiről
             String reportName = parameters.get("reportName").toString();
             Optional<Report> optReport = (new ReportRepository()).findByName(reportName);
@@ -130,8 +129,9 @@ public class ReportEditorBean implements Serializable {
             for (String indicatorName : cubeEntry.getValue().measureHeader()) {
                 availableIndicatorNames.add(cubeName + "." + indicatorName);
             }
-        }
+        }        
         java.util.Collections.sort(availableIndicatorNames);
+        availableIndicatorNames.add(0, "1");
     }
 
     public List<String> getAvailableDimensionNames() {
@@ -239,7 +239,6 @@ public class ReportEditorBean implements Serializable {
      * @param index The index of the cube to set.
      */
     public void setCube(int index) {
-        report.getCubes().get(index).setDatabaseType("AGNOS_MOLAP");
         onCubeChange();
     }
 

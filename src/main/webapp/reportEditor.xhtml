@@ -104,7 +104,7 @@
                                     title="Cube the report based on">
                                     <f:selectItem itemLabel="-- chose a cube --" itemValue="" itemDisabled="false" noSelectionOption="true"/>
                                     <f:selectItems value="#{reportEditorBean.availableCubeNames}" var="cubeName" itemLabel="#{cubeName}" itemValue="#{cubeName}"/>
-                                    <p:ajax process="@this" listener="#{reportEditorBean.setCube(loop.index)}" update=":reportForm" />
+                                    <p:ajax process=":reportForm" listener="#{reportEditorBean.setCube(loop.index)}" update=":reportForm" />
                                 </p:selectOneMenu>           
                                 <br />
                                 <br />
@@ -479,7 +479,7 @@
 
                 <p:commandButton
                     disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                    process="@this"
+                    process=":reportForm:dimensionField"
                     icon="ui-icon-plus"
                     ajax="true"
                     update=":reportForm:dimensionField"
@@ -587,7 +587,6 @@
                             styleClass="selectOneFieldBig"
                             title="Value of the indicator (chose from the columns of the data cube)">
                             <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="false"/>
-                            <f:selectItem itemLabel="1" itemValue="1" itemDisabled="false" noSelectionOption="false"/>
                             <f:selectItems value="#{reportEditorBean.availableIndicatorNames}" var="h" itemLabel="#{h}" itemValue="#{h}"/>                  
                         </p:selectOneMenu>   
                       </p:column>                      
@@ -642,7 +641,6 @@
                             styleClass="selectOneFieldBig"
                             title="Divisor of the prorated value (chose from the columns of the data cube)">
                             <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="true"/>
-                            <f:selectItem itemLabel="1" itemValue="1" itemDisabled="false" noSelectionOption="false"/>
                             <f:selectItems value="#{reportEditorBean.availableIndicatorNames}" var="h" itemLabel="#{h}" itemValue="#{h}"/>
                         </p:selectOneMenu>   
                       </p:column>        
