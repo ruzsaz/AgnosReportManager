@@ -79,7 +79,7 @@ public class ReportEditorBean implements Serializable {
 
         if (parameters.get("reportName") == null) { // Ha új reportról van szó
             this.report = new Report();
-            this.report.addLanguage("");
+            this.report.addLanguage("");            
             this.report.setCubes(new ArrayList<>(2));
         } else { // Ha régiről
             String reportName = parameters.get("reportName").toString();
