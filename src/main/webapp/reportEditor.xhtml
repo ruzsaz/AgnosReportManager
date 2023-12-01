@@ -623,8 +623,15 @@
                             styleClass="centeredCheckBox"
                             title="Hide the value in the report?"/>                                      
                       </p:column>  
-                      <p:column style="width:10%" styleClass="borderInsideB">
-                        <label class="centeredContent">1</label>
+                      <p:column style="width:10%" styleClass="borderInsideB">                                            
+                        <p:inputNumber
+                            value="#{indicator.valueMultiplier}"
+                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                            decimalPlaces="3"
+                            inputStyleClass="textFieldMicro"
+                            onblur="trimDecimalPlace(this);"
+                            styleClass="centeredContent"
+                            title="Multiplier of the value (eg. use 100 to get percentages)" />
                       </p:column>
                     </p:row>
         

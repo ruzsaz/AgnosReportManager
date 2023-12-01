@@ -4,6 +4,7 @@ import hu.agnos.cube.meta.resultDto.CubeList;
 import hu.agnos.cube.meta.resultDto.CubeMetaDTO;
 import hu.agnos.cube.meta.resultDto.DimensionDTO;
 import hu.agnos.cube.meta.resultDto.LevelDTO;
+import hu.agnos.cube.meta.resultDto.MeasureDTO;
 import hu.agnos.report.entity.Cube;
 import hu.agnos.report.entity.Dimension;
 import hu.agnos.report.entity.Indicator;
@@ -126,8 +127,10 @@ public class ReportEditorBean implements Serializable {
         this.availableIndicatorNames = new ArrayList<>(10);
         for (Entry<String, CubeMetaDTO> cubeEntry : getAvailableCubesMap().entrySet()) {
             String cubeName = cubeEntry.getKey();
-            for (String indicatorName : cubeEntry.getValue().measureHeader()) {
-                availableIndicatorNames.add(cubeName + "." + indicatorName);
+            for (MeasureDTO indicatorDTO : cubeEntry.getValue().measureHeader()) {              
+                if (!indicatorDTO.hidden()) {
+                    availableIndicatorNames.add(cubeName + "." + indicatorDTO.name());
+                }
             }
         }        
         java.util.Collections.sort(availableIndicatorNames);
@@ -412,14 +415,19 @@ public class ReportEditorBean implements Serializable {
      * @param c Cube to look for measures
      * @return List of measure names
      */
-    public String[] getMeasureNames(Cube c) {
-        if (c != null) {
+    public List<String> getMeasureNames(Cube c) {
+        List<String> result = new ArrayList<>();
+        if (c != null) {            
             CubeMetaDTO cubeDTO = cubeList.cubeMap().get(c.getName());
             if (cubeDTO != null) {
-                return cubeDTO.measureHeader();
+                for (MeasureDTO measureDTO : cubeDTO.measureHeader()) {              
+                    if (!measureDTO.hidden()) {
+                        result.add(measureDTO.name());
+                    }
+                }            
             }
         }
-        return new String[0];
+        return result;                
     }
     
     /**
