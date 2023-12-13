@@ -72,11 +72,11 @@ public class ReportChoserBean implements Serializable {
     public String sendRefreshCubesRequest() {
         try {
             HttpPost CubesRefreshRequest = new HttpPost(new URL((new URL(cubeServerUri)).toExternalForm() + "/refresh").toURI());
-            System.out.println("Első kérés beküldve");
+            LOGGER.info("Refresh the cube servers.");
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
                 httpClient.execute(CubesRefreshRequest);
             }
-            System.out.println("2x lefutott");
+            LOGGER.info("Refresh the report server.");
             HttpPost ReportServerRefreshRequest = new HttpPost(new URL((new URL(reportServerUri)).toExternalForm() + "/refresh").toURI());
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
                 httpClient.execute(ReportServerRefreshRequest);

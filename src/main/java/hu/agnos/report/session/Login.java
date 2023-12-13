@@ -84,13 +84,13 @@ public class Login implements Serializable {
         ExternalContext externalContext = currentExternalContext();
 
         try {
-            System.out.println("logout");
+            LOGGER.debug("logout");
             request.logout();
         } catch (ServletException ex) {
             java.util.logging.Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {        
-            System.out.println("redirect");
+            LOGGER.debug("redirect");
             externalContext.redirect(externalContext.getRequestContextPath());
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);

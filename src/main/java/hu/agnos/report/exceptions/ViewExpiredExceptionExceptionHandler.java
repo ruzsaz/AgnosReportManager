@@ -41,7 +41,6 @@ public class ViewExpiredExceptionExceptionHandler extends ExceptionHandlerWrappe
                 try {
                     // Push some useful stuff to the request scope for use in the page
                     requestMap.put("currentViewId", vee.getViewId());
-                    System.out.println(vee.getViewId());
                     navigationHandler.handleNavigation(facesContext, null, "/expiredError.xhtml");
                     facesContext.renderResponse();
                 } finally {
