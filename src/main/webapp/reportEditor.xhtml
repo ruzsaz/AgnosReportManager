@@ -35,12 +35,11 @@
             <p:fieldset legend="#{reportEditorBean.deleteReport ? 'Are you sure?' : 'Report'}" toggleable="false">
                 
                 <p:panelGrid style="width:100%" styleClass="customBorder">  
-                                                                           
-                    <p:column style="#{reportEditorBean.deleteReport ? 'width:100%' : 'width: 1%'}" styleClass="borderL borderT borderB">
+                           
+                    <p:column style="#{reportEditorBean.deleteReport ? 'width:100%' : 'width: 10%'}" styleClass="borderL borderT borderB">
                         <p:outputLabel value="#{reportEditorBean.deleteReport ? 'Click \'Save\' to delete report for good...' : ''}" escape="false" />
-                        <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Identifier" />
-                    </p:column>
-                    <p:column style="width:20%" styleClass="borderT borderB">
+                        <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Identifier" />                    
+                        <br />
                         <p:inputText 
                               rendered="#{!reportEditorBean.deleteReport}"
                               value="#{reportEditorBean.report.name}"                    
@@ -49,10 +48,10 @@
                               disabled="#{!(reportEditorBean.editedLang eq 0)}"
                               title="A report unique name (if you change this, a new report will be created)" />                
                     </p:column>
-                    <p:column style="width:1%" styleClass="borderT borderB">
+                                                            
+                    <p:column style="width:10%" styleClass="borderT borderB">
                         <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Security&nbsp;group" />
-                    </p:column>
-                    <p:column style="width:20%" styleClass="borderT borderB">
+                        <br />
                         <p:selectOneMenu
                               rendered="#{!reportEditorBean.deleteReport}"
                               value="#{reportEditorBean.report.roleToAccess}"
@@ -66,7 +65,18 @@
                             <f:selectItems value="#{reportEditorBean.roles}" var="role" itemLabel="#{role}" itemValue="#{role}"/>
                         </p:selectOneMenu>
                     </p:column> 
-
+                                        
+                    <p:column style="width:10%" styleClass="borderT borderB">
+                        <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Save&nbsp;allowed" />
+                        <br />
+                        <p:selectBooleanCheckbox
+                            value="#{reportEditorBean.report.saveAllowed}"
+                            rendered="#{!reportEditorBean.deleteReport}"
+                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                            styleClass=""
+                            title="Allow save of raw data as csv?"/>    
+                    </p:column>                     
+                    
                     <p:column style="width:1%" styleClass="borderT borderB borderR">
                         <p:commandButton
                             ajax="true"
@@ -302,8 +312,7 @@
                       <p:textEditor                  
                           id="description_helpHTML"
                           value="#{reportEditorBean.report.helps[reportEditorBean.editedLang].message}"                  
-                          style="width:100%; box-sizing:border-box"                        
-                          placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.helps[0].message}"                    
+                          style="width:100%; box-sizing:border-box"                                                  
                           height="290" />
                     </p:column>
         
