@@ -40,12 +40,13 @@
                     rowIndexVar="rowId"
                     id="existingReportsTable"
                     emptyMessage="No reports found"
-                    rows="10"          
+                    rows="100"          
                     value="#{reportChoserBean.reports}"          
                     selectionMode="single"
                     rowKey="#{item.name}"
                     selection="#{reportChoserBean.selectedReport}"          
-                    var="item"          
+                    var="item"
+                    sortBy="#{item.name}"
                     scrollable="false"
                     styleClass="searchResultTable"
                     stickyHeader="false"
@@ -63,6 +64,15 @@
                         width="160">
                         <h:outputLabel value="#{item.name}" style="#{item.broken ? 'color:coral' : ''}"/>
                     </p:column>
+                    <p:column            
+                        headerText="Keywords"
+                        sortBy="#{item.keywordStrings.size()}"
+                        visible="true"
+                        styleClass="borderL tableBorder"
+                        width="160">
+                        <h:outputLabel value="#{item.keywordStrings}" style="#{item.broken ? 'color:coral' : ''}"/>
+                    </p:column>
+                    
                     <p:column            
                         headerText="Base cubes"                        
                         visible="true"

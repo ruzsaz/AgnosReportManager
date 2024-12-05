@@ -8,11 +8,13 @@ import hu.agnos.cube.meta.resultDto.MeasureDTO;
 import hu.agnos.report.entity.Cube;
 import hu.agnos.report.entity.Dimension;
 import hu.agnos.report.entity.Indicator;
+import hu.agnos.report.entity.Keyword;
 
 import hu.agnos.report.entity.Report;
 import hu.agnos.report.entity.Visualization;
 import hu.agnos.report.manager.service.CubeService;
 import hu.agnos.report.repository.ReportRepository;
+import hu.agnos.report.repository.KeywordsRepository;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
@@ -55,6 +57,7 @@ public class ReportEditorBean implements Serializable {
     private String reportServerUri;
 
     private CubeList cubeList;  // List of available cubes
+    private List<Keyword> keywordList;
     private Report report;  // The currently edited report
 
     private int editedLang;
@@ -72,9 +75,12 @@ public class ReportEditorBean implements Serializable {
         this.cubeServerUri = config.getValue("cube.server.uri", String.class);
         this.reportServerUri = config.getValue("report.server.uri", String.class);
         this.roles = getAllRoles();
+        this.roles.sort(null);
         this.deleteReport = false;
         Map<String, Object> parameters = FacesContext.getCurrentInstance().getExternalContext().getFlash();
         this.cubeList = CubeService.getCubeList(cubeServerUri);
+        this.keywordList = (new KeywordsRepository()).findAll();
+        this.keywordList.sort((a, b) -> { return a.getName().compareTo(b.getName()); });
         initAvailableCubeNames();
         this.editedLang = 0;
 
@@ -181,6 +187,10 @@ public class ReportEditorBean implements Serializable {
 
     public List<String> getRoles() {
         return roles;
+    }
+
+    public List<Keyword> getKeywordList() {
+        return keywordList;
     }
 
     public Report getReport() {

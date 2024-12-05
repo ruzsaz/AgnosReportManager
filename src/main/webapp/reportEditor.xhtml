@@ -33,65 +33,91 @@
         <h:form id="reportForm" rendered="#{!isHacked}">
 
             <p:fieldset legend="#{reportEditorBean.deleteReport ? 'Are you sure?' : 'Report'}" toggleable="false">
-                
+
                 <p:panelGrid style="width:100%" styleClass="customBorder">  
-                           
-                    <p:column style="#{reportEditorBean.deleteReport ? 'width:100%' : 'width: 10%'}" styleClass="borderL borderT borderB">
-                        <p:outputLabel value="#{reportEditorBean.deleteReport ? 'Click \'Save\' to delete report for good...' : ''}" escape="false" />
-                        <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Identifier" />                    
-                        <br />
-                        <p:inputText 
-                              rendered="#{!reportEditorBean.deleteReport}"
-                              value="#{reportEditorBean.report.name}"                    
-                              maxlength="50"
-                              styleClass="textField"
-                              disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                              title="A report unique name (if you change this, a new report will be created)" />                
-                    </p:column>
-                                                            
-                    <p:column style="width:10%" styleClass="borderT borderB">
-                        <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Security&nbsp;group" />
-                        <br />
-                        <p:selectOneMenu
-                              rendered="#{!reportEditorBean.deleteReport}"
-                              value="#{reportEditorBean.report.roleToAccess}"
-                              filter="true"
-                              filterMatchMode="contains"
-                              autoWidth="false"
-                              styleClass="selectOneField"
-                              disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                              title="Only members of this group can access this report.">
-                            <f:selectItem itemLabel="-- Chose a group --" itemValue="" itemDisabled="true"/>
-                            <f:selectItems value="#{reportEditorBean.roles}" var="role" itemLabel="#{role}" itemValue="#{role}"/>
-                        </p:selectOneMenu>
-                    </p:column> 
-                                        
-                    <p:column style="width:10%" styleClass="borderT borderB">
-                        <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Save&nbsp;allowed" />
-                        <br />
-                        <p:selectBooleanCheckbox
-                            value="#{reportEditorBean.report.saveAllowed}"
-                            rendered="#{!reportEditorBean.deleteReport}"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            styleClass=""
-                            title="Allow save of raw data as csv?"/>    
-                    </p:column>                     
-                    
-                    <p:column style="width:1%" styleClass="borderT borderB borderR">
-                        <p:commandButton
-                            ajax="true"
-                            rendered="true"
-                            disabled="false"
-                            process=":reportForm"
-                            value="#{reportEditorBean.deleteReport ? 'Undelete' : 'Delete report'}"
-                            update=":reportForm"
-                            action="#{reportEditorBean.toggleDelete}"
-                            styleClass="deleteReportButton">
-                        </p:commandButton>
-                    </p:column> 
-                
+
+                    <p:row>
+
+                        <p:column style="#{reportEditorBean.deleteReport ? 'width:100%' : 'width: 10%'}" styleClass="borderL borderT">
+                            <p:outputLabel value="#{reportEditorBean.deleteReport ? 'Click \'Save\' to delete report for good...' : ''}" escape="false" />
+                            <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Identifier" />                    
+                            <br />
+                            <p:inputText 
+                                rendered="#{!reportEditorBean.deleteReport}"
+                                value="#{reportEditorBean.report.name}"                    
+                                maxlength="50"
+                                styleClass="textField"
+                                disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                title="A report unique name (if you change this, a new report will be created)" />                
+                        </p:column>
+
+                        <p:column style="width:10%" styleClass="borderT">
+                            <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Security&nbsp;group" />
+                            <br />
+                            <p:selectOneMenu
+                                rendered="#{!reportEditorBean.deleteReport}"
+                                value="#{reportEditorBean.report.roleToAccess}"
+                                filter="true"
+                                filterMatchMode="contains"
+                                autoWidth="false"
+                                styleClass="selectOneField"
+                                disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                title="Only members of this group can access this report.">
+                                <f:selectItem itemLabel="-- Chose a group --" itemValue="" itemDisabled="true"/>
+                                <f:selectItems value="#{reportEditorBean.roles}" var="role" itemLabel="#{role}" itemValue="#{role}"/>
+                            </p:selectOneMenu>
+                        </p:column> 
+
+                        <p:column style="width:10%" styleClass="borderT">
+                            <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Save&nbsp;allowed" />
+                            <br />
+                            <p:selectBooleanCheckbox
+                                value="#{reportEditorBean.report.saveAllowed}"
+                                rendered="#{!reportEditorBean.deleteReport}"
+                                disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                styleClass=""
+                                title="Allow save of raw data as csv?"/>    
+                        </p:column>                     
+
+                        <p:column rowspan="2" style="width:1%" styleClass="borderT borderB borderR">
+                            <p:commandButton
+                                ajax="true"
+                                rendered="true"
+                                disabled="false"
+                                process=":reportForm"
+                                value="#{reportEditorBean.deleteReport ? 'Undelete' : 'Delete report'}"
+                                update=":reportForm"
+                                action="#{reportEditorBean.toggleDelete}"
+                                styleClass="deleteReportButton">
+                            </p:commandButton>
+                        </p:column> 
+
+                    </p:row>
+
+                    <p:row>
+
+                        <p:column colspan="3" styleClass="borderL borderB">
+                            <p:outputLabel rendered="#{!reportEditorBean.deleteReport}" value="Keywords" />
+                            <br />
+                            <p:selectCheckboxMenu                                     
+                                filter="false"                                    
+                                label="lábel"
+                                rendered="#{!reportEditorBean.deleteReport}"
+                                multiple="true"
+                                updateLabel="true"
+                                disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                style="min-width: 100%; height: 31px; padding: 2px 0px 2px 2px"
+                                panelStyle="width: 30rem"
+                                styleClass="selectOneField"
+                                value="#{reportEditorBean.report.keywordStrings}">                                    
+                                <f:selectItems value="#{reportEditorBean.keywordList}" var="keyword" itemValue="#{keyword.name}" itemLabel="#{keyword.name}"/>
+                            </p:selectCheckboxMenu>
+                        </p:column>
+
+                    </p:row>
+
                 </p:panelGrid>
-                
+
             </p:fieldset>
 
             <p:fieldset id="cubesField" legend="Base cubes" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
@@ -119,7 +145,7 @@
                                 <br />
                                 <br />
                             </p:column>
-                            
+
                             <p:column colspan="1" styleClass="borderT borderB" style="width: 33%">
                                 <p:dataList  value="#{reportEditorBean.getDimensionNames(cube)}" var="dim" varStatus="loop2" type="definition" emptyMessage="No&nbsp;cube&nbsp;selected" >
                                     <p:outputLabel
@@ -137,7 +163,7 @@
                                         title="Available measures in the cube"/>
                                 </p:dataList>
                             </p:column>
-                            
+
                             <p:column styleClass="transparentBackground rightButtons">
                                 <p:commandButton
                                     process=":reportForm:cubesField"
@@ -245,79 +271,79 @@
 
                 <p:panelGrid style="width:100%" styleClass="customBorder">  
 
-                  <p:row>   
-        
-                    <p:column style="width:1%" styleClass="borderL borderT">
-                      <label>Language&nbsp;code</label>
-                    </p:column>
-                    <p:column style="width:1%" styleClass="borderT">
-                      <p:inputText
-                          id="languageInputText"
-                          value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].lang}"                    
-                          styleClass="textField"
-                          maxlength="6"
-                          disabled="#{reportEditorBean.editedLang eq 0}"
-                          placeholder="#{reportEditorBean.editedLang eq 0 ? '' : '???'}"
-                          title="Language of the report. The first language acts as default, it's code should be empty." >
-                        <p:ajax event="change" process="@this" update=":reportForm:languageField" />
-                      </p:inputText>              
-                    </p:column>
-                    <p:column rowspan="3" style="width:100%" styleClass="borderT borderB">
-                    </p:column>            
-                    <p:column style="width:1%" styleClass="borderT">
-                      <label>Short&nbsp;label</label>
-                    </p:column>
-                    <p:column style="width:1%" styleClass="borderR borderT">
-                      <p:inputText 
-                          value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].caption}"
-                          styleClass="textFieldBig"
-                          maxlength="200"
-                          placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].caption}"
-                          title="Short label describing the report" />                
-                    </p:column>
-        
-                  </p:row>
-        
-                  <p:row>
-        
-                    <p:column style="width:1%" styleClass="borderL">
-                      <label>Data&nbsp;source&nbsp;name</label>
-                    </p:column>
-                    <p:column style="width:1%">
-                      <p:inputText                   
-                          value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].datasource}"
-                          styleClass="textField"
-                          maxlength="30"
-                          placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].datasource}"
-                          title="Short label of the data source" />   
-                    </p:column>
-                    <p:column style="width:1%">
-                      <label>Longer&nbsp;description</label>
-                    </p:column>
-                    <p:column style="width:1%" styleClass="borderR">
-                      <p:inputText
-                          value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].description}"
-                          styleClass="textFieldBig"
-                          maxlength="2000"
-                          placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].description}"
-                          title="Longer description of the report. Acts as tooltip on the reports' page." />
-                    </p:column>
-        
-                  </p:row>
-                  <p:row>
-        
-                    <p:column colspan="7" style="width:5%" styleClass="borderL borderB borderR">  
-                      <label>Long description of the report, appears on the help page.</label>
-                      <br />
-                      <p:textEditor                  
-                          id="description_helpHTML"
-                          value="#{reportEditorBean.report.helps[reportEditorBean.editedLang].message}"                  
-                          style="width:100%; box-sizing:border-box"                                                  
-                          height="290" />
-                    </p:column>
-        
-                  </p:row>
-        
+                    <p:row>   
+
+                        <p:column style="width:1%" styleClass="borderL borderT">
+                            <label>Language&nbsp;code</label>
+                        </p:column>
+                        <p:column style="width:1%" styleClass="borderT">
+                            <p:inputText
+                                id="languageInputText"
+                                value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].lang}"                    
+                                styleClass="textField"
+                                maxlength="6"
+                                disabled="#{reportEditorBean.editedLang eq 0}"
+                                placeholder="#{reportEditorBean.editedLang eq 0 ? '' : '???'}"
+                                title="Language of the report. The first language acts as default, it's code should be empty." >
+                                <p:ajax event="change" process="@this" update=":reportForm:languageField" />
+                            </p:inputText>              
+                        </p:column>
+                        <p:column rowspan="3" style="width:100%" styleClass="borderT borderB">
+                        </p:column>            
+                        <p:column style="width:1%" styleClass="borderT">
+                            <label>Short&nbsp;label</label>
+                        </p:column>
+                        <p:column style="width:1%" styleClass="borderR borderT">
+                            <p:inputText 
+                                value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].caption}"
+                                styleClass="textFieldBig"
+                                maxlength="200"
+                                placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].caption}"
+                                title="Short label describing the report" />                
+                        </p:column>
+
+                    </p:row>
+
+                    <p:row>
+
+                        <p:column style="width:1%" styleClass="borderL">
+                            <label>Data&nbsp;source&nbsp;name</label>
+                        </p:column>
+                        <p:column style="width:1%">
+                            <p:inputText                   
+                                value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].datasource}"
+                                styleClass="textField"
+                                maxlength="30"
+                                placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].datasource}"
+                                title="Short label of the data source" />   
+                        </p:column>
+                        <p:column style="width:1%">
+                            <label>Longer&nbsp;description</label>
+                        </p:column>
+                        <p:column style="width:1%" styleClass="borderR">
+                            <p:inputText
+                                value="#{reportEditorBean.report.labels[reportEditorBean.editedLang].description}"
+                                styleClass="textFieldBig"
+                                maxlength="2000"
+                                placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.labels[0].description}"
+                                title="Longer description of the report. Acts as tooltip on the reports' page." />
+                        </p:column>
+
+                    </p:row>
+                    <p:row>
+
+                        <p:column colspan="7" style="width:5%" styleClass="borderL borderB borderR">  
+                            <label>Long description of the report, appears on the help page.</label>
+                            <br />
+                            <p:textEditor                  
+                                id="description_helpHTML"
+                                value="#{reportEditorBean.report.helps[reportEditorBean.editedLang].message}"                  
+                                style="width:100%; box-sizing:border-box"                                                  
+                                height="290" />
+                        </p:column>
+
+                    </p:row>
+
                 </p:panelGrid>
 
             </p:fieldset>
@@ -501,222 +527,223 @@
 
                 <p:panelGrid id="indicatorsPanel" style="width:100%" styleClass="customBorder">  
 
-                  <ui:repeat value="#{reportEditorBean.report.indicators}" var="indicator" varStatus="loop">
-        
-                    <p:row>   
-                      <p:column colspan="9" style="width:100%; padding-bottom:2ex" styleClass="borderL borderT borderR">
-                        <label style="padding-right: 0.5em;">Label</label>              
-                        <p:inputText 
-                            value="#{indicator.multilingualization[reportEditorBean.editedLang].caption}"                    
-                            styleClass="textField"
-                            style="margin-right:4em; width:12em"
-                            maxlength="200"
-                            placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].caption}"
-                            title="Short label of the indicator"/>                              
-                        <label style="padding-right: 0.5em;">Description</label>              
-                        <p:inputText 
-                            value="#{indicator.multilingualization[reportEditorBean.editedLang].description}"                    
-                            styleClass="textField"
-                            style="margin-right:2em; width:18em"
-                            maxlength="500"
-                            placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].description}"
-                            title="Longer description of the indicator. Acts as tooltip in the report."/>
-                      </p:column>        
-                      <p:column rowspan="4" styleClass="transparentBackground rightButtons">
-                        <p:commandButton
-                            process=":reportForm:indicatorsField"
-                            icon="ui-icon-triangle-1-n"
-                            disabled="#{loop.first or !(reportEditorBean.editedLang eq 0)}"
-                            ajax="true"
-                            update=":reportForm:indicatorsField"
-                            actionListener="#{reportEditorBean.moveIndicator(loop.index, -1)}"
-                            oncomplete="trimDecimalPlaces(); setTimeout(function(){document.activeElement.blur();}, 50);"
-                            title="Move indicator ahead in the order of appearance"/>
-                        <br />
-                        <p:commandButton
-                            process=":reportForm:indicatorsField"
-                            icon="ui-icon-minus"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            ajax="true"
-                            update=":reportForm:indicatorsField"
-                            actionListener="#{reportEditorBean.removeIndicator(loop.index)}"
-                            oncomplete="trimDecimalPlaces();"
-                            title="Delete this indicator"/>
-                        <br />
-                        <p:commandButton
-                            process=":reportForm:indicatorsField"
-                            icon="ui-icon-triangle-1-s"
-                            disabled="#{loop.last or !(reportEditorBean.editedLang eq 0)}"
-                            ajax="true"
-                            update=":reportForm:indicatorsField"
-                            actionListener="#{reportEditorBean.moveIndicator(loop.index, 1)}"
-                            oncomplete="trimDecimalPlaces(); setTimeout(function(){document.activeElement.blur();}, 50);"
-                            title="Move indicator back in the order of appearance"/>
-                      </p:column>                                                                                              
-                    </p:row>
-        
-                    <p:row>
-                      <p:column rowspan="4" styleClass="borderL borderB" style="width:1em">
-                      </p:column>              
-                      <p:column styleClass="borderInsideR borderInsideB">
-                      </p:column>
-                      <p:column styleClass="borderInsideR borderInsideB">
-                        <label>data&nbsp;column</label>
-                      </p:column>
-                      <p:column styleClass="borderInsideR borderInsideB">
-                        <label>unit&nbsp;(1)</label>
-                      </p:column>
-                      <p:column styleClass="borderInsideR borderInsideB">
-                        <label>unit&nbsp;(2+)</label>
-                      </p:column>              
-                      <p:column styleClass="borderInsideR borderInsideB">
-                        <label  title="Allowed sign of the value.&#13;+: Value must be non-negative, negative values are considered defective, and an error report is shown.&#13;0: Value is usually non-negative, negative values are corrected to 0.&#13;&plusmn;: Value can booth positive and negative. Some panels can not show negative values, therefore will not be available.">sign</label>
-                      </p:column>              
-                      <p:column styleClass="borderInsideR borderInsideB">
-                        <label>hide</label>
-                      </p:column>
-                      <p:column styleClass="borderInsideB">
-                        <label>multiplier</label>
-                      </p:column>
-                      <p:column rowspan="4" styleClass="borderR borderB" style="width:1em">
-                      </p:column>   
-                    </p:row>
-        
-                    <p:row>
-        
-                      <p:column style="width:10%" styleClass="borderInsideR borderInsideB">
-                        <label>value</label>
-                      </p:column>
-                      <p:column style="width:38%" styleClass="borderInsideR borderInsideB">                               
-                        <p:selectOneMenu                          
-                            value="#{indicator.combinedValueName}"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            filter="false"
-                            autoWidth="false"                    
-                            styleClass="selectOneFieldBig"
-                            title="Value of the indicator (chose from the columns of the data cube)">
-                            <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="false"/>
-                            <f:selectItems value="#{reportEditorBean.availableIndicatorNames}" var="h" itemLabel="#{h}" itemValue="#{h}"/>                  
-                        </p:selectOneMenu>   
-                      </p:column>                      
-                      <p:column style="width:8%" styleClass="borderInsideR borderInsideB">
-                        <p:inputText 
-                            value="#{indicator.multilingualization[reportEditorBean.editedLang].valueUnit}"                    
-                            styleClass="textFieldMini"                        
-                            maxlength="20"
-                            placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].valueUnit}"
-                            title="Unit of the value, one piece"/>
-                      </p:column>             
-                      <p:column style="width:8%" styleClass="borderInsideR borderInsideB">
-                        <p:inputText 
-                            value="#{indicator.multilingualization[reportEditorBean.editedLang].valueUnitPlural}"             
-                            styleClass="textFieldMini"                        
-                            maxlength="20"
-                            placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].valueUnitPlural}"
-                            title="Unit of the value, more pieces (use the plural form only if it is really used in the language)"/>
-                      </p:column>
-                      <p:column style="width:18%" styleClass="borderInsideR borderInsideB">
-                        <p:selectOneRadio
-                            value="#{indicator.valueSign}"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            styleClass="centeredCheckBox centeredFilledCheckBox">
-                          <f:selectItem itemLabel="+" itemValue="1"/>
-                          <f:selectItem itemLabel="0" itemValue="0"/>
-                          <f:selectItem itemLabel="&plusmn;" itemValue="-1"/>
-                        </p:selectOneRadio>                                    
-                      </p:column>  
-                      <p:column style="width:8%" styleClass="borderInsideR borderInsideB">
-                        <p:selectBooleanCheckbox
-                            value="#{indicator.valueIsHidden}"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            styleClass="centeredCheckBox"
-                            title="Hide the value in the report?"/>                                      
-                      </p:column>  
-                      <p:column style="width:10%" styleClass="borderInsideB">                                            
-                        <p:inputNumber
-                            value="#{indicator.valueMultiplier}"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            decimalPlaces="3"
-                            inputStyleClass="textFieldMicro"
-                            onblur="trimDecimalPlace(this);"
-                            styleClass="centeredContent"
-                            title="Multiplier of the value (eg. use 100 to get percentages)" />
-                      </p:column>
-                    </p:row>
-        
-                    <p:row>               
-                      <p:column styleClass="borderInsideR">
-                        <label>fraction</label>
-                      </p:column>
-                      <p:column styleClass="borderInsideR">
-                        <p:selectOneMenu                          
-                            value="#{indicator.combinedDenominatorName}"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            filter="false"
-                            autoWidth="false"
-                            styleClass="selectOneFieldBig"
-                            title="Divisor of the prorated value (chose from the columns of the data cube)">
-                            <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="true"/>
-                            <f:selectItems value="#{reportEditorBean.availableIndicatorNames}" var="h" itemLabel="#{h}" itemValue="#{h}"/>
-                        </p:selectOneMenu>   
-                      </p:column>        
-                      <p:column styleClass="borderInsideR">
-                        <p:inputText 
-                            value="#{indicator.multilingualization[reportEditorBean.editedLang].denominatorUnit}"      
-                            styleClass="textFieldMini"
-                            maxlength="20"
-                            placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].denominatorUnit}"
-                            title="Unit of the fraction, one piece" />
-                      </p:column>
-                      <p:column styleClass="borderInsideR">
-                        <p:inputText 
-                            value="#{indicator.multilingualization[reportEditorBean.editedLang].denominatorUnitPlural}"   
-                            styleClass="textFieldMini"
-                            maxlength="20"
-                            placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].denominatorUnitPlural}"
-                            title="Unit of the fraction, more pieces (use the plural form only if it is really used in the language)"/>
-                      </p:column>
-                      <p:column style="width:24%" styleClass="borderInsideR">
-                        <p:selectOneRadio
-                            value="#{indicator.denominatorSign}"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            styleClass="centeredCheckBox centeredFilledCheckBox">
-                          <f:selectItem itemLabel="+" itemValue="1" />
-                          <f:selectItem itemLabel="0" itemValue="0" />
-                          <f:selectItem itemLabel="&plusmn;" itemValue="-1" />                  
-                        </p:selectOneRadio>                                    
-                      </p:column> 
-                      <p:column styleClass="borderInsideR">
-                        <p:selectBooleanCheckbox
-                            value="#{indicator.denominatorIsHidden}"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            styleClass="centeredCheckBox"
-                            title="Hide the fraction in the report?"/>                
-                      </p:column>  
-                      <p:column>
-                        <p:inputNumber
-                            value="#{indicator.denominatorMultiplier}"
-                            disabled="#{!(reportEditorBean.editedLang eq 0)}"
-                            decimalPlaces="3"
-                            inputStyleClass="textFieldMicro"
-                            onblur="trimDecimalPlace(this);"
-                            styleClass="centeredContent"
-                            title="Multiplier of the fraction (eg. use 100 to get percentages)" />
-                      </p:column>
-        
-                    </p:row>
-        
-                    <p:row>
-                      <p:column colspan="7" styleClass="borderB">
-                      </p:column>            
-                    </p:row>
-        
-                    <p:row>
-                      <p:column colspan="9" styleClass="verticalSpacer">
-                      </p:column>
-                    </p:row>            
-        
-                  </ui:repeat>
+                    <ui:repeat value="#{reportEditorBean.report.indicators}" var="indicator" varStatus="loop">
+
+                        <p:row>
+                            <p:column colspan="9" style="width:100%; padding-bottom:2ex" styleClass="borderL borderT borderR">
+                                <p:outputLabel style="padding-right: 2em;">Indicator #{loop.index + 1}</p:outputLabel>
+                                <label style="padding-right: 0.5em;">Label</label>              
+                                <p:inputText 
+                                    value="#{indicator.multilingualization[reportEditorBean.editedLang].caption}"                    
+                                    styleClass="textField"
+                                    style="margin-right:4em; width:12em"
+                                    maxlength="200"
+                                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].caption}"
+                                    title="Short label of the indicator"/>                              
+                                <label style="padding-right: 0.5em;">Description</label>              
+                                <p:inputText 
+                                    value="#{indicator.multilingualization[reportEditorBean.editedLang].description}"                    
+                                    styleClass="textField"
+                                    style="margin-right:2em; width:18em"
+                                    maxlength="500"
+                                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].description}"
+                                    title="Longer description of the indicator. Acts as tooltip in the report."/>
+                            </p:column>        
+                            <p:column rowspan="4" styleClass="transparentBackground rightButtons">
+                                <p:commandButton
+                                    process=":reportForm:indicatorsField"
+                                    icon="ui-icon-triangle-1-n"
+                                    disabled="#{loop.first or !(reportEditorBean.editedLang eq 0)}"
+                                    ajax="true"
+                                    update=":reportForm:indicatorsField"
+                                    actionListener="#{reportEditorBean.moveIndicator(loop.index, -1)}"
+                                    oncomplete="trimDecimalPlaces(); setTimeout(function(){document.activeElement.blur();}, 50);"
+                                    title="Move indicator ahead in the order of appearance"/>
+                                <br />
+                                <p:commandButton
+                                    process=":reportForm:indicatorsField"
+                                    icon="ui-icon-minus"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    ajax="true"
+                                    update=":reportForm:indicatorsField, :reportForm:kpiField"
+                                    actionListener="#{reportEditorBean.removeIndicator(loop.index)}"
+                                    oncomplete="trimDecimalPlaces();"
+                                    title="Delete this indicator"/>
+                                <br />
+                                <p:commandButton
+                                    process=":reportForm:indicatorsField"
+                                    icon="ui-icon-triangle-1-s"
+                                    disabled="#{loop.last or !(reportEditorBean.editedLang eq 0)}"
+                                    ajax="true"
+                                    update=":reportForm:indicatorsField"
+                                    actionListener="#{reportEditorBean.moveIndicator(loop.index, 1)}"
+                                    oncomplete="trimDecimalPlaces(); setTimeout(function(){document.activeElement.blur();}, 50);"
+                                    title="Move indicator back in the order of appearance"/>
+                            </p:column>                                                                                              
+                        </p:row>
+
+                        <p:row>
+                            <p:column rowspan="4" styleClass="borderL borderB" style="width:1em">
+                            </p:column>              
+                            <p:column styleClass="borderInsideR borderInsideB">
+                            </p:column>
+                            <p:column styleClass="borderInsideR borderInsideB">
+                                <label>data&nbsp;column</label>
+                            </p:column>
+                            <p:column styleClass="borderInsideR borderInsideB">
+                                <label>unit&nbsp;(1)</label>
+                            </p:column>
+                            <p:column styleClass="borderInsideR borderInsideB">
+                                <label>unit&nbsp;(2+)</label>
+                            </p:column>              
+                            <p:column styleClass="borderInsideR borderInsideB">
+                                <label  title="Allowed sign of the value.&#13;+: Value must be non-negative, negative values are considered defective, and an error report is shown.&#13;0: Value is usually non-negative, negative values are corrected to 0.&#13;&plusmn;: Value can booth positive and negative. Some panels can not show negative values, therefore will not be available.">sign</label>
+                            </p:column>              
+                            <p:column styleClass="borderInsideR borderInsideB">
+                                <label>hide</label>
+                            </p:column>
+                            <p:column styleClass="borderInsideB">
+                                <label>multiplier</label>
+                            </p:column>
+                            <p:column rowspan="4" styleClass="borderR borderB" style="width:1em">
+                            </p:column>   
+                        </p:row>
+
+                        <p:row>
+
+                            <p:column style="width:10%" styleClass="borderInsideR borderInsideB">
+                                <label>value</label>
+                            </p:column>
+                            <p:column style="width:38%" styleClass="borderInsideR borderInsideB">                               
+                                <p:selectOneMenu                          
+                                    value="#{indicator.combinedValueName}"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    filter="false"
+                                    autoWidth="false"                    
+                                    styleClass="selectOneFieldBig"
+                                    title="Value of the indicator (chose from the columns of the data cube)">
+                                    <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="false"/>
+                                    <f:selectItems value="#{reportEditorBean.availableIndicatorNames}" var="h" itemLabel="#{h}" itemValue="#{h}"/>                  
+                                </p:selectOneMenu>   
+                            </p:column>                      
+                            <p:column style="width:8%" styleClass="borderInsideR borderInsideB">
+                                <p:inputText 
+                                    value="#{indicator.multilingualization[reportEditorBean.editedLang].valueUnit}"                    
+                                    styleClass="textFieldMini"                        
+                                    maxlength="20"
+                                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].valueUnit}"
+                                    title="Unit of the value, one piece"/>
+                            </p:column>             
+                            <p:column style="width:8%" styleClass="borderInsideR borderInsideB">
+                                <p:inputText 
+                                    value="#{indicator.multilingualization[reportEditorBean.editedLang].valueUnitPlural}"             
+                                    styleClass="textFieldMini"                        
+                                    maxlength="20"
+                                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].valueUnitPlural}"
+                                    title="Unit of the value, more pieces (use the plural form only if it is really used in the language)"/>
+                            </p:column>
+                            <p:column style="width:18%" styleClass="borderInsideR borderInsideB">
+                                <p:selectOneRadio
+                                    value="#{indicator.valueSign}"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    styleClass="centeredCheckBox centeredFilledCheckBox">
+                                    <f:selectItem itemLabel="+" itemValue="1"/>
+                                    <f:selectItem itemLabel="0" itemValue="0"/>
+                                    <f:selectItem itemLabel="&plusmn;" itemValue="-1"/>
+                                </p:selectOneRadio>                                    
+                            </p:column>  
+                            <p:column style="width:8%" styleClass="borderInsideR borderInsideB">
+                                <p:selectBooleanCheckbox
+                                    value="#{indicator.valueIsHidden}"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    styleClass="centeredCheckBox"
+                                    title="Hide the value in the report?"/>                                      
+                            </p:column>  
+                            <p:column style="width:10%" styleClass="borderInsideB">                                            
+                                <p:inputNumber
+                                    value="#{indicator.valueMultiplier}"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    decimalPlaces="3"
+                                    inputStyleClass="textFieldMicro"
+                                    onblur="trimDecimalPlace(this);"
+                                    styleClass="centeredContent"
+                                    title="Multiplier of the value (eg. use 100 to get percentages)" />
+                            </p:column>
+                        </p:row>
+
+                        <p:row>               
+                            <p:column styleClass="borderInsideR">
+                                <label>fraction</label>
+                            </p:column>
+                            <p:column styleClass="borderInsideR">
+                                <p:selectOneMenu                          
+                                    value="#{indicator.combinedDenominatorName}"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    filter="false"
+                                    autoWidth="false"
+                                    styleClass="selectOneFieldBig"
+                                    title="Divisor of the prorated value (chose from the columns of the data cube)">
+                                    <f:selectItem itemLabel="-- chose --" itemValue="" itemDisabled="false" noSelectionOption="true"/>
+                                    <f:selectItems value="#{reportEditorBean.availableIndicatorNames}" var="h" itemLabel="#{h}" itemValue="#{h}"/>
+                                </p:selectOneMenu>   
+                            </p:column>        
+                            <p:column styleClass="borderInsideR">
+                                <p:inputText 
+                                    value="#{indicator.multilingualization[reportEditorBean.editedLang].denominatorUnit}"      
+                                    styleClass="textFieldMini"
+                                    maxlength="20"
+                                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].denominatorUnit}"
+                                    title="Unit of the fraction, one piece" />
+                            </p:column>
+                            <p:column styleClass="borderInsideR">
+                                <p:inputText 
+                                    value="#{indicator.multilingualization[reportEditorBean.editedLang].denominatorUnitPlural}"   
+                                    styleClass="textFieldMini"
+                                    maxlength="20"
+                                    placeholder="#{reportEditorBean.editedLang eq 0 ? '' : indicator.multilingualization[0].denominatorUnitPlural}"
+                                    title="Unit of the fraction, more pieces (use the plural form only if it is really used in the language)"/>
+                            </p:column>
+                            <p:column style="width:24%" styleClass="borderInsideR">
+                                <p:selectOneRadio
+                                    value="#{indicator.denominatorSign}"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    styleClass="centeredCheckBox centeredFilledCheckBox">
+                                    <f:selectItem itemLabel="+" itemValue="1" />
+                                    <f:selectItem itemLabel="0" itemValue="0" />
+                                    <f:selectItem itemLabel="&plusmn;" itemValue="-1" />                  
+                                </p:selectOneRadio>                                    
+                            </p:column> 
+                            <p:column styleClass="borderInsideR">
+                                <p:selectBooleanCheckbox
+                                    value="#{indicator.denominatorIsHidden}"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    styleClass="centeredCheckBox"
+                                    title="Hide the fraction in the report?"/>                
+                            </p:column>  
+                            <p:column>
+                                <p:inputNumber
+                                    value="#{indicator.denominatorMultiplier}"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    decimalPlaces="3"
+                                    inputStyleClass="textFieldMicro"
+                                    onblur="trimDecimalPlace(this);"
+                                    styleClass="centeredContent"
+                                    title="Multiplier of the fraction (eg. use 100 to get percentages)" />
+                            </p:column>
+
+                        </p:row>
+
+                        <p:row>
+                            <p:column colspan="7" styleClass="borderB">
+                            </p:column>            
+                        </p:row>
+
+                        <p:row>
+                            <p:column colspan="9" styleClass="verticalSpacer">
+                            </p:column>
+                        </p:row>            
+
+                    </ui:repeat>
                 </p:panelGrid>          
 
                 <p:commandButton
@@ -724,12 +751,101 @@
                     icon="ui-icon-plus"
                     disabled="#{!(reportEditorBean.editedLang eq 0)}"
                     ajax="true"
-                    update=":reportForm:indicatorsField"
+                    update=":reportForm:indicatorsField, :reportForm:kpiField"
                     actionListener="#{reportEditorBean.addIndicator()}"
                     oncomplete="trimDecimalPlaces();"
                     title="Add a new indicator"/>              
 
             </p:fieldset>
+
+
+
+
+
+
+
+            <p:fieldset id="kpiField" legend="KPI" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
+
+                <p:panelGrid style="width:100%" styleClass="customBorder">  
+
+                    <p:row>   
+
+                        <p:column style="width:1%" styleClass="borderL borderT">
+                            <label>Indicator&nbsp;index</label>
+                        </p:column>
+                        <p:column style="width:1%" styleClass="borderT">
+                            <p:selectOneMenu                          
+                                value="#{reportEditorBean.report.kpi.indicatorIndex}"
+                                disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                filter="false"
+                                autoWidth="false"
+                                styleClass="selectOneFieldBig"
+                                title="Index of the indictor to show as KPI">
+                                <f:selectItem itemLabel="none" itemValue="-1" />
+                                <c:forEach var="i" begin="0" end="#{reportEditorBean.report.indicators.size() - 1}">
+                                    <f:selectItem itemLabel="#{i}" itemValue="#{i}" />       
+                                </c:forEach>                                
+                            </p:selectOneMenu>   
+
+                        </p:column>
+                        <p:column rowspan="1" style="width:100%" styleClass="borderT">
+                        </p:column>            
+                        <p:column style="width:1%" styleClass="borderT">
+                            <label>Short&nbsp;label</label>
+                        </p:column>
+                        <p:column style="width:1%" styleClass="borderR borderT">
+                            <p:inputText 
+                                value="#{reportEditorBean.report.kpi.labels[reportEditorBean.editedLang].caption}"
+                                styleClass="textFieldBig"
+                                maxlength="200"
+                                placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.kpi.labels[0].caption}"
+                                title="Short label describing the kpi" />                
+                        </p:column>
+
+                    </p:row>
+
+                    <p:row>
+
+                        <p:column style="width:1%" styleClass="borderL borderB">
+                            <label>Fraction</label>
+                        </p:column>
+                        <p:column style="width:1%" styleClass="borderB">
+                            <p:selectBooleanCheckbox
+                                    value="#{reportEditorBean.report.kpi.ratio}"
+                                    disabled="#{!(reportEditorBean.editedLang eq 0)}"
+                                    title="Show the fraction value as kpi?"/>         
+                        </p:column>
+                        <p:column rowspan="1" style="width:100%" styleClass="borderB">
+                        </p:column>            
+                        <p:column style="width:1%" styleClass="borderB">
+                            <label>Longer&nbsp;description</label>
+                        </p:column>
+                        <p:column style="width:1%" styleClass="borderR borderB">
+                            <p:inputText
+                                value="#{reportEditorBean.report.kpi.labels[reportEditorBean.editedLang].description}"
+                                styleClass="textFieldBig"
+                                maxlength="2000"
+                                placeholder="#{reportEditorBean.editedLang eq 0 ? '' : reportEditorBean.report.kpi.labels[0].description}"
+                                title="Longer description of the kpi. Acts as tooltip on the reports' page." />
+                        </p:column>
+
+                    </p:row>                    
+
+                </p:panelGrid>
+
+            </p:fieldset>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
             <p:fieldset id="visualizationField" legend="Visualization" toggleable="false" rendered="#{!reportEditorBean.deleteReport}">
