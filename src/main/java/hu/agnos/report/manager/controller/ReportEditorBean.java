@@ -184,7 +184,20 @@ public class ReportEditorBean implements Serializable {
             }
         }
     }
-
+    
+    /**
+     * Removes all empty visualizations
+     */
+    private void validateVisualizations() {
+        Iterator<Visualization> v = report.getVisualizations().iterator();
+        while (v.hasNext()) {
+            Visualization vi = v.next();
+            if (vi.getInitString() == null || vi.getInitString().length() < 2) {
+                v.remove();
+            }
+        }
+    }
+    
     public List<String> getRoles() {
         return roles;
     }
@@ -317,6 +330,7 @@ public class ReportEditorBean implements Serializable {
             spreadLanguages();
             validateDimensions();
             validateIndicators();
+            validateVisualizations();
             (new ReportRepository()).save(report);
         }
         try {
