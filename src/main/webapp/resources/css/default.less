@@ -124,7 +124,7 @@ html, body {
 }
 
 form {
-    width: 70em;
+    width: 90em;
     margin: auto;
 }
 
@@ -194,22 +194,22 @@ button {
 }
 
 .textField, .selectOneField {
-    width: 14.5em;
+    width: 20em;
     box-sizing: border-box;
 }
 
 .textFieldBig, .selectOneFieldBig {
-    width: 18em;
+    width: 28em;
     box-sizing: border-box;
 }
 
 .textFieldSmall, .selectOneFieldSmall {
-    width: 10em;
+    width: 16em;
     box-sizing: border-box;
 }
 
 .textFieldMini, .selectOneFieldMini {
-    width: 4em;
+    width: 6em;
     box-sizing: border-box;
 }
 
@@ -662,4 +662,34 @@ li.ui-menuitem a.ui-state-hover {
 .ui-selectcheckboxmenu-items-wrapper {
     height: unset !important;
     max-height: 800px;
+}
+
+.customColorPicker {
+    position: absolute;
+}
+
+.customColorPicker > button {
+    width: 0px;
+    height: 0px;
+    border: none !important;
+}
+
+.customColorPicker > button > span {
+    padding: .3em .3em !important;
+    margin-left: -1.8em;
+    margin-top: -1px;
+}
+
+.customColorPicker > button > span > span {
+    border-color: #555555 !important;
+    border-radius: 3px;
+}
+
+.availableCubeNames {
+    display: inline-block;
+    margin: 10px 20px 0px 0px;
+    background-color: #555;
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: solid black 1px;
 }

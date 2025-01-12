@@ -31,7 +31,7 @@
 
         <h:form id="reportChoserForm" rendered="true">
 
-            <p:fieldset legend="Modify a report" toggleable="false">
+            <p:fieldset legend="Edit a report" toggleable="false">
                 <p:dataTable
                     paginatorPosition="bottom"
                     paginator="true"
@@ -64,65 +64,59 @@
                         width="160">
                         <h:outputLabel value="#{item.name}" style="#{item.broken ? 'color:coral' : ''}"/>
                     </p:column>
+                    
                     <p:column            
                         headerText="Keywords"
                         sortBy="#{item.keywordStrings.size()}"
                         visible="true"
-                        styleClass="borderL tableBorder"
+                        styleClass="tableBorder blackBorderInsideL"
                         width="160">
                         <h:outputLabel value="#{item.keywordStrings}" style="#{item.broken ? 'color:coral' : ''}"/>
+                    </p:column>
+
+                    <p:column            
+                        headerText="Access"
+                        sortBy="#{item.roleToAccess}"
+                        visible="true"
+                        styleClass="tableBorder blackBorderInsideL"
+                        width="60">
+                        <h:outputLabel value="#{item.roleToAccess}" style="#{item.broken ? 'color:coral' : ''}"/>
                     </p:column>
                     
                     <p:column            
                         headerText="Base cubes"                        
                         visible="true"
                         styleClass="borderR tableBorder blackBorderInsideL"                        
-                        width="160">
+                        width="360">
                         <h:outputLabel value="#{item.cubeNames}" style="#{item.broken ? 'color:coral' : ''}"/>
                     </p:column>
 
                 </p:dataTable>      
 
                 <div class="bottomButtonsDiv">
-                </div>        
+                    <p:commandButton
+                        ajax="false"
+                        rendered="true"
+                        disabled="false"
+                        process=":reportForm"
+                        value="Create new"                        
+                        onclick="$('#refreshBlock').css('display', 'block')"
+                        action="#{reportChoserBean.createwNewReport}"
+                        styleClass="cancelButton">
+                    </p:commandButton>
+                </div>       
 
             </p:fieldset>        
 
-            <p:fieldset legend="Create new" toggleable="false">
-                <p:dataTable
-                    paginatorPosition="bottom"
-                    paginator="true"
-                    draggableColumns="false"
-                    widgetVar="NewReportTable"
-                    rowIndexVar="rowId"
-                    id="newReportTable"
-                    emptyMessage="No available base cubes"
-                    rows="10"
-                    value="#{reportChoserBean.cubeNames}"
-                    selectionMode="single"
-                    rowKey="#{item}"
-                    selection="#{reportChoserBean.selectedCubeName}"
-                    var="item"          
-                    scrollable="false"
-                    styleClass="searchResultTable"
-                    stickyHeader="false"
-                    rowsPerPageTemplate="10,25,50,100"
-                    currentPageReportTemplate="{startRecord}-{endRecord}, total {totalRecords} cubes"
-                    paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                    >
-
-                    <p:ajax event="rowSelect" listener="#{reportChoserBean.setNewReportSource()}" process="newReportTable" />                
-
-                    <p:column            
-                        headerText="Base cube"
-                        sortBy="#{item}"
-                        visible="true"
-                        styleClass="borderL borderR tableBorder"
-                        width="160">
-                        <h:outputLabel value="#{item}"/>
-                    </p:column>
-
-                </p:dataTable>            
+            <p:fieldset legend="Available cubes" toggleable="false">
+                
+                <ui:repeat value="#{reportChoserBean.cubeNames}" var="cube" varStatus="loop">
+                    <p:outputLabel
+                        value="#{cube}"
+                        styleClass="availableCubeNames"
+                        title="Available dimensions in the cube"/>                                        
+                </ui:repeat>
+                
 
                 <div class="bottomButtonsDiv">
                     <p:commandButton

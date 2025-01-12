@@ -47,6 +47,7 @@ public class ReportChoserBean implements Serializable {
         CubeList cubeList = CubeService.getCubeList(cubeServerUri);
         if (cubeList != null) {
             this.cubeNames.addAll(cubeList.cubeMap().keySet());
+            java.util.Collections.sort(cubeNames);            
         }
         this.reports = (new ReportRepository()).findAll();
         for (Report report : reports) {
@@ -61,11 +62,8 @@ public class ReportChoserBean implements Serializable {
         FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(context, null, "reportEditor.xhtml?faces-redirect=true");
     }
 
-    public void setNewReportSource() {
+    public void createNewReport() {
         FacesContext context = FacesContext.getCurrentInstance();
-        Flash flash = context.getExternalContext().getFlash();
-        flash.put("cubeNames", selectedCubeName);
-        flash.put("reportName", null);
         FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(context, null, "reportEditor.xhtml?faces-redirect=true");
     }
 

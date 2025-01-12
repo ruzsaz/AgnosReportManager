@@ -171,6 +171,19 @@ public class ReportEditorBean implements Serializable {
 
         }
     }
+    
+    /**
+     * Removes all cubes whose name are not set.
+     */
+    private void validateCubes() {
+        Iterator<Cube> i = report.getCubes().iterator();
+        while (i.hasNext()) {
+            Cube c = i.next();
+            if (c.getName() == null || c.getName().isEmpty()) {
+                i.remove();
+            }
+        }        
+    }    
 
     /**
      * Removes all indicators whose cube is not present
@@ -296,19 +309,6 @@ public class ReportEditorBean implements Serializable {
         return report.getLanguageCount();
     }
 
-    public void moveVisualization(int index, int direction) {
-        Collections.swap(report.getVisualizations(), index, index + direction);
-    }
-
-    public void removeVisualization(int index) {
-        report.getVisualizations().remove(index);
-        addIfEmpty();
-    }
-
-    public void addVisualization() {
-        report.getVisualizations().add(new Visualization(""));
-    }
-
     public void removeEditedLanguage() {
         if (editedLang > 0) {
             report.removeLanguage(editedLang);
@@ -328,6 +328,7 @@ public class ReportEditorBean implements Serializable {
             (new ReportRepository()).delete(report);
         } else {
             spreadLanguages();
+            validateCubes();
             validateDimensions();
             validateIndicators();
             validateVisualizations();
@@ -486,9 +487,6 @@ public class ReportEditorBean implements Serializable {
         }
         if (report.getIndicators().isEmpty()) {
             addIndicator();
-        }
-        if (report.getVisualizations().isEmpty()) {
-            addVisualization();
         }
     }
 
