@@ -908,7 +908,7 @@
 
             </p:fieldset>              
 
-            <div id="record_gombok">
+            <div id="record_gombok" style="height: 4em">
                 <p:commandButton
                     ajax="false"
                     rendered="true"
@@ -920,19 +920,7 @@
                     styleClass="saveButton">
                 </p:commandButton>
 
-                <p:commandButton
-                    ajax="false"
-                    rendered="true"
-                    disabled="false"
-                    process=":reportForm"
-                    value="Cancel"
-                    update=":reportForm"
-                    action="#{reportEditorBean.cancel}"
-                    styleClass="cancelButton">
-                </p:commandButton>
-
             </div>
-
 
         </h:form>
     </h:body>
