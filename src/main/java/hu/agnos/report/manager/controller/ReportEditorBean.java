@@ -1,26 +1,20 @@
 package hu.agnos.report.manager.controller;
 
-import hu.agnos.cube.meta.resultDto.CubeList;
-import hu.agnos.cube.meta.resultDto.CubeMetaDTO;
-import hu.agnos.cube.meta.resultDto.DimensionDTO;
-import hu.agnos.cube.meta.resultDto.LevelDTO;
-import hu.agnos.cube.meta.resultDto.MeasureDTO;
-import hu.agnos.report.entity.Cube;
-import hu.agnos.report.entity.Dimension;
-import hu.agnos.report.entity.Indicator;
-import hu.agnos.report.entity.Keyword;
-
-import hu.agnos.report.entity.Report;
-import hu.agnos.report.entity.Visualization;
+import hu.agnos.cube.meta.resultDto.*;
+import hu.agnos.report.entity.*;
 import hu.agnos.report.manager.service.CubeService;
+import hu.agnos.report.manager.service.ResourceFilesService;
 import hu.agnos.report.repository.ReportRepository;
 import hu.agnos.report.repository.KeywordsRepository;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +27,8 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.microprofile.config.Config;
@@ -50,22 +46,46 @@ import org.keycloak.representations.idm.RoleRepresentation;
 @ViewScoped
 public class ReportEditorBean implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportEditorBean.class);   //!< Log kezelő
+    private static final String TOKEN = "ééé";
 
     private String cubeServerUri;
     private String reportServerUri;
 
+    @Setter
+    @Getter
     private CubeList cubeList;  // List of available cubes
+    @Getter
     private List<Keyword> keywordList;
+    @Setter
+    @Getter
     private Report report;  // The currently edited report
 
+    @Setter
+    @Getter
     private int editedLang;
+    @Getter
     private boolean deleteReport;
+    @Getter
     private List<String> availableDimensionNames;
+    @Getter
     private List<String> availableIndicatorNames;
+    @Getter
     private List<String> availableCubeNames;
+    @Getter
+    private List<String> availableMapFiles;
+    @Getter
+    private List<String> availableDictionaries;
+    @Getter
     private List<String> roles;
+    @Getter
+    private final List<String> availableControlTypes = Arrays.asList("slider", "radio");
+    private final List<String> controlParametersExamples = Arrays.asList(
+            "{\"min\": 0, \"max\": 100, \"step\": 10}",
+            "{\"values\": [0, 1, 2]}");
 
     @PostConstruct
     public void init() {
@@ -73,16 +93,24 @@ public class ReportEditorBean implements Serializable {
         Config config = ConfigProvider.getConfig();
 
         this.cubeServerUri = config.getValue("cube.server.uri", String.class);
-        this.reportServerUri = config.getValue("report.server.uri", String.class);
+        this.reportServerUri = config.getValue("report.server.uri", String.class);        
         this.roles = getAllRoles();
-        this.roles.sort(null);
+        roles.sort(null);
         this.deleteReport = false;
         Map<String, Object> parameters = FacesContext.getCurrentInstance().getExternalContext().getFlash();
         this.cubeList = CubeService.getCubeList(cubeServerUri);
         this.keywordList = (new KeywordsRepository()).findAll();
-        this.keywordList.sort((a, b) -> { return a.getName().compareTo(b.getName()); });
+        keywordList.sort(Comparator.comparing(Keyword::getName));
         initAvailableCubeNames();
         this.editedLang = 0;
+        
+        String mapFilesDirectory = config.getValue("map.files.dir", String.class);
+        this.availableMapFiles = new ArrayList<>(ResourceFilesService.getResourceFilesSet(mapFilesDirectory));
+        availableMapFiles.sort(null);
+        String dictionaryDirectory = config.getValue("dictionary.files.dir", String.class);
+        this.availableDictionaries = new ArrayList<>(ResourceFilesService.getResourceFilesSet(dictionaryDirectory));
+        availableDictionaries.sort(null);
+
 
         if (parameters.get("reportName") == null) { // Ha új reportról van szó
             this.report = new Report();
@@ -92,7 +120,7 @@ public class ReportEditorBean implements Serializable {
             String reportName = parameters.get("reportName").toString();
             Optional<Report> optReport = (new ReportRepository()).findByName(reportName);
             if (optReport.isPresent()) {
-                this.report = optReport.get();
+                this.report = optReport.get();                
             }
         }
         initAvailableDimensionNames();
@@ -108,17 +136,9 @@ public class ReportEditorBean implements Serializable {
         addIfEmpty();
     }
 
-    public List<String> getAvailableCubeNames() {
-        return availableCubeNames;
-    }
-
     private void initAvailableCubeNames() {
         this.availableCubeNames = new ArrayList<>(cubeList.cubeMap().keySet());
         java.util.Collections.sort(availableCubeNames);
-    }
-
-    public List<String> getAvailableIndicatorNames() {
-        return availableIndicatorNames;
     }
 
     private Map<String, CubeMetaDTO> getAvailableCubesMap() {
@@ -141,10 +161,6 @@ public class ReportEditorBean implements Serializable {
         }        
         java.util.Collections.sort(availableIndicatorNames);
         availableIndicatorNames.add(0, "1");
-    }
-
-    public List<String> getAvailableDimensionNames() {
-        return availableDimensionNames;
     }
 
     private void initAvailableDimensionNames() {
@@ -172,6 +188,16 @@ public class ReportEditorBean implements Serializable {
         }
     }
     
+    private void validateControls() {
+        Iterator<Control> i = report.getControls().iterator();
+        while (i.hasNext()) {
+            Control c = i.next();
+            if (!availableControlTypes.contains(c.getType())) {
+                i.remove();
+            }
+        }
+    }
+    
     /**
      * Removes all cubes whose name are not set.
      */
@@ -189,11 +215,17 @@ public class ReportEditorBean implements Serializable {
      * Removes all indicators whose cube is not present
      */
     private void validateIndicators() {
-        Iterator<Indicator> i = report.getIndicators().iterator();
-        while (i.hasNext()) {
-            Indicator in = i.next();
+        Iterator<Indicator> indicatorIterator = report.getIndicators().iterator();
+        while (indicatorIterator.hasNext()) {
+            Indicator in = indicatorIterator.next();
+            if (in.getCombinedValueName() == null) {
+                in.setCombinedValueName("1");
+            }
+            if (in.getCombinedDenominatorName() == null) {
+                in.setCombinedDenominatorName("1");
+            }
             if (!availableIndicatorNames.contains(in.getCombinedValueName()) || !availableIndicatorNames.contains(in.getCombinedDenominatorName())) {
-                i.remove();
+                indicatorIterator.remove();
             }
         }
     }
@@ -210,52 +242,37 @@ public class ReportEditorBean implements Serializable {
             }
         }
     }
-    
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public List<Keyword> getKeywordList() {
-        return keywordList;
-    }
-
-    public Report getReport() {
-        return report;
-    }
-
-    public void setReport(Report report) {
-        this.report = report;
-    }
-
-    public int getEditedLang() {
-        return editedLang;
-    }
-
-    public void setEditedLang(int editedLang) {
-        this.editedLang = editedLang;
-    }
-
-    public CubeList getCubeList() {
-        return cubeList;
-    }
-
-    public void setCubeList(CubeList cubeList) {
-        this.cubeList = cubeList;
-    }
 
     public void moveDimension(int index, int direction) {
         Collections.swap(report.getDimensions(), index, index + direction);
+        changeAllVariableIndexes("D", index, direction);
     }
 
     public void removeDimension(int index) {
         report.getDimensions().remove(index);
+        changeAllVariableIndexes("D", index, 0);
         addIfEmpty();
     }
 
     public void addDimension() {
         report.getDimensions().add(new Dimension(report.getLabels()));
     }
+    
+    public void moveControl(int index, int direction) {
+        Collections.swap(report.getControls(), index, index + direction);
+        changeAllVariableIndexes("c", index, direction);
+    }
 
+    public void removeControl(int index) {
+        report.getControls().remove(index);
+        changeAllVariableIndexes("c", index, 0);
+        addIfEmpty();
+    }
+
+    public void addControl() {
+        report.getControls().add(new Control(report.getLabels()));
+    }
+           
     public void moveCube(int index, int direction) {
         Collections.swap(report.getCubes(), index, index + direction);
     }
@@ -291,18 +308,55 @@ public class ReportEditorBean implements Serializable {
         Dimension halfSetDimension = report.getDimensions().get(index);
         halfSetDimension.setAllowedDepth(getLevels(halfSetDimension).size() - 1);
     }
-
+    
+    /**
+     * Sets a control element's default parameters.
+     * 
+     * @param index Index of the control to set.
+     */
+    public void setControlAtIndex(int index) {
+        Control halfSetControl = report.getControls().get(index);
+        int indexOfSelectedType = availableControlTypes.indexOf(halfSetControl.getType());
+        halfSetControl.setParameters(controlParametersExamples.get(indexOfSelectedType));
+        halfSetControl.setDefaultValue("0");
+    }
+       
     public void moveIndicator(int index, int direction) {
         Collections.swap(report.getIndicators(), index, index + direction);
+        changeAllVariableIndexes("v", index, direction);
+        changeAllVariableIndexes("d", index, direction);
     }
 
     public void removeIndicator(int index) {
         report.getIndicators().remove(index);
+        changeAllVariableIndexes("v", index, 0);
+        changeAllVariableIndexes("d", index, 0);
         addIfEmpty();
     }
 
     public void addIndicator() {
         report.addIndicator(new Indicator(report.getLabels()));
+    }
+
+    private void changeAllVariableIndexes(String variableName, int index, int direction) {
+        for (Indicator indicator : report.getIndicators()) {
+            indicator.setValueFunction(ReportEditorBean.changeVariableIndex(indicator.getValueFunction(), variableName, index, direction));
+            indicator.setDenominatorFunction(ReportEditorBean.changeVariableIndex(indicator.getDenominatorFunction(), variableName, index, direction));
+        }
+    }
+
+    private static String changeVariableIndex(String functionBody, String variableName, int index, int direction) {
+        if (direction == 0) {
+            String s = functionBody.replaceAll(variableName + "\\[" + index + "\\]", variableName + "[MISSING]");
+            for (int i = index + 1; i < 99; i++) {
+                s = s.replaceAll(variableName + "\\[" + i + "\\]", variableName + "[" + (i - 1) + "]");
+            }
+            return s;
+        } else {
+            return functionBody.replaceAll(variableName + "\\[" + index + "\\]", ReportEditorBean.TOKEN + "[" + (index + direction) + "]")
+                    .replaceAll(variableName + "\\[" + (index + direction) + "\\]", ReportEditorBean.TOKEN + "[" + index + "]")
+                    .replaceAll(ReportEditorBean.TOKEN + "\\[", variableName + "[");
+        }
     }
 
     public int getLanguageCount() {
@@ -330,6 +384,7 @@ public class ReportEditorBean implements Serializable {
             spreadLanguages();
             validateCubes();
             validateDimensions();
+            validateControls();
             validateIndicators();
             validateVisualizations();
             (new ReportRepository()).save(report);
@@ -353,13 +408,16 @@ public class ReportEditorBean implements Serializable {
             for (Dimension dimension : report.getDimensions()) {
                 dimension.getMultilingualization().get(i).setLang(lang);
             }
+            for (Control control : report.getControls()) {
+                control.getMultilingualization().get(i).setLang(lang);
+            }            
             for (Indicator indicator : report.getIndicators()) {
                 indicator.getMultilingualization().get(i).setLang(lang);
             }
         }
     }
 
-    private void sendRefreshReportRequest() throws Exception {
+    private void sendRefreshReportRequest() throws java.net.URISyntaxException, IOException, java.net.MalformedURLException, org.apache.http.client.ClientProtocolException {
         HttpPost request = new HttpPost(new URL((new URL(reportServerUri)).toExternalForm() + "/refresh").toURI());
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             httpClient.execute(request);
@@ -376,10 +434,6 @@ public class ReportEditorBean implements Serializable {
 
     public void toggleDelete() {
         this.deleteReport = !this.deleteReport;
-    }
-
-    public boolean isDeleteReport() {
-        return deleteReport;
     }
 
     private List<String> getAllRoles() {
@@ -485,6 +539,9 @@ public class ReportEditorBean implements Serializable {
         if (report.getDimensions().isEmpty()) {
             addDimension();
         }
+        if (report.getControls().isEmpty()) {
+            addControl();
+        }        
         if (report.getIndicators().isEmpty()) {
             addIndicator();
         }

@@ -22,6 +22,7 @@ public class CubeService {
     public static CubeList getCubeList(String cubeServerUri) {
         CubeList cubeList = null;
         try {
+            System.out.println("Downloading cube list from " + cubeServerUri + "/cube_list");
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(cubeServerUri + "/cube_list"))
                     .timeout(Duration.of(10, SECONDS))

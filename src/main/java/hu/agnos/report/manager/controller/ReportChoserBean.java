@@ -6,6 +6,7 @@ import hu.agnos.report.entity.Report;
 import hu.agnos.report.manager.service.CubeService;
 import hu.agnos.report.repository.ReportRepository;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -16,6 +17,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -28,14 +31,21 @@ import org.eclipse.microprofile.config.ConfigProvider;
 @ViewScoped
 public class ReportChoserBean implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportChoserBean.class);   //!< Log kezelő
 
     private String cubeServerUri;
     private String reportServerUri;
+    @Getter
     private List<String> cubeNames;
+    @Getter
     private List<Report> reports;
+    @Setter
+    @Getter
     private Report selectedReport;
+    @Setter
+    @Getter
     private String selectedCubeName;
 
     @PostConstruct
@@ -43,7 +53,7 @@ public class ReportChoserBean implements Serializable {
         Config config = ConfigProvider.getConfig();
         this.cubeServerUri = config.getValue("cube.server.uri", String.class);
         this.reportServerUri = config.getValue("report.server.uri", String.class);
-        this.cubeNames = new ArrayList<>();
+        this.cubeNames = new ArrayList<>(5);
         CubeList cubeList = CubeService.getCubeList(cubeServerUri);
         if (cubeList != null) {
             this.cubeNames.addAll(cubeList.cubeMap().keySet());
@@ -85,28 +95,4 @@ public class ReportChoserBean implements Serializable {
         return "reportChoser.xhtml?faces-redirect=true";
     }
 
-    public List<String> getCubeNames() {
-        return cubeNames;
-    }
-
-    public List<Report> getReports() {
-        return reports;
-    }
-
-    public Report getSelectedReport() {
-        return selectedReport;
-    }
-
-    public void setSelectedReport(Report selectedReport) {
-        this.selectedReport = selectedReport;
-    }
-
-    public String getSelectedCubeName() {
-        return selectedCubeName;
-    }
-
-    public void setSelectedCubeName(String selectedCubeName) {
-        this.selectedCubeName = selectedCubeName;
-    }
-    
 }

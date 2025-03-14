@@ -109,8 +109,8 @@ and open the template in the editor.
 
 body {
     font-family: arial, sans-serif;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
     background: @baseBackgroundColor;
     color: #ffffff;
 }
@@ -182,15 +182,15 @@ button {
 }
 
 .bottomButtonsDiv .saveButton, .bottomButtonsDiv .cancelButton {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
     margin-bottom: 0.5em;
 }
 
 .deleteReportButton {
     margin-top: -0.5em;
-    margin-bottom: 0em;
-    margin-right: 0em;
+    margin-bottom: 0;
+    margin-right: 0;
 }
 
 .textField, .selectOneField {
@@ -210,6 +210,16 @@ button {
 
 .textFieldMini, .selectOneFieldMini {
     width: 6em;
+    box-sizing: border-box;
+}
+
+.textFieldMidi, .selectOneFieldMidi {
+    width: 8em;
+    box-sizing: border-box;
+}
+
+.textFieldCompact, .selectOneFieldCompact {
+    width: 10em;
     box-sizing: border-box;
 }
 
@@ -234,32 +244,32 @@ button {
 table.customBorder {
     border: none;
     border-collapse: separate !important;
-    border-spacing: 0px;    
+    border-spacing: 0;
 }
 
 .verticalSpacer, .transparentBackground {
-    padding: 0px;
+    padding: 0;
     height: 1em;
     background: rgba(0,0,0,0) !important;
 }
 
 tr, td, dl.ui-datalist-data, .ui-datalist-empty-message {
-    border-width: 0px !important;
+    border-width: 0 !important;
     background: @oddColor;
 }
 
 tr {
-    border-width: 0px !important;
+    border-width: 0 !important;
     border-color: @baseBackgroundColor !important;  
     background: none !important;
 }
 
 .ui-datalist-content {
-    border: 0px;
+    border: 0;
 }
 
 dl.ui-datalist-data {
-    margin: 0px;
+    margin: 0;
 }
 
 td {
@@ -268,7 +278,7 @@ td {
 
 .rightButtons {
     width:1%;
-    padding-right: 0px !important;
+    padding-right: 0 !important;
     padding-left: 16px !important;
 }
 
@@ -356,11 +366,11 @@ td {
 }
 
 .searchResultTable thead th {
-    border-top-width: 0px !important;
+    border-top-width: 0 !important;
 }
 
 .searchResultTable tbody {
-    border-width: 0px !important;
+    border-width: 0 !important;
 }
 
 .searchResultTable tr td label {
@@ -439,7 +449,7 @@ div.ql-container {
 .dialog dl.ui-datalist-data, .dialog .ui-datalist-empty-message {
     background: @panelBackgroundColor;
     color: @panelWriteColor;
-    border-width: 0px !important;
+    border-width: 0 !important;
 
 }
 
@@ -489,11 +499,11 @@ form#header div.ui-menubar {
     height: @mainToolbarHeight;
     padding: 1px;
     margin-bottom: 16px;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
     border-bottom-left-radius: @rounding;
     border-bottom-right-radius: @rounding;
-    border-width: 0px;
+    border-width: 0;
     background: @mainToolbarBackgroundColor;
     box-shadow: @mainToolbarShadow;
     -webkit-box-shadow: @mainToolbarShadow;
@@ -502,7 +512,7 @@ form#header div.ui-menubar {
 }
 
 li.ui-menuitem {
-    margin: 0px;
+    margin: 0;
 }
 
 li.ui-menuitem * {
@@ -532,9 +542,9 @@ li.ui-menuitem a.ui-state-hover {
 .inlineErrorMessage, .inlineErrorMessage:after {
     display: unset;
     background: none;
-    border-width: 0px;    
+    border-width: 0;
     font-style: italic;
-    padding: 0px;
+    padding: 0;
 }
 
 .inlineErrorMessage span {
@@ -543,7 +553,7 @@ li.ui-menuitem a.ui-state-hover {
 
 .ui-selectoneradio label {
     display: inline-block;
-    padding: 0px;
+    padding: 0;
     width: 1.4em;
     text-align: center;
     margin: auto;
@@ -557,13 +567,13 @@ li.ui-menuitem a.ui-state-hover {
     width: 100%;
     height: 100%;
     position: absolute;
-    top: 0px;
+    top: 0;
 }
 
 .mainTable {
     width: 100%;
     height: 100%;
-    padding:0px;
+    padding:0;
     padding-top: @mainToolbarHeight;
     border-collapse: separate;
     border-spacing: 1em;
@@ -571,7 +581,7 @@ li.ui-menuitem a.ui-state-hover {
 
 .mainPanel {
     border-width: @elementBorderSize !important;  
-    padding: 0px !important;
+    padding: 0 !important;
     background: @baseBackgroundColor;
     color: @panelWriteColor;
     border-width: 0px !important;    
@@ -592,7 +602,6 @@ li.ui-menuitem a.ui-state-hover {
     position: relative;
     border: 0;
     display: block;
-    border: 0px;
     background: #c4c4c4 url(/AgnosReportingServer/javax.faces.resource/images/ui-bg_highlight-soft_100_c4c4c4_1x100.png.xhtml?ln=primefaces-aristo) 50% 50% repeat-x;
     background: #c4c4c4 linear-gradient(top,rgba(255,255,255,0.8),rgba(255,255,255,0));
     background: #c4c4c4 -webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0.8)),to(rgba(255,255,255,0)));
@@ -644,7 +653,7 @@ li.ui-menuitem a.ui-state-hover {
 
 .ui-selectcheckboxmenu-token {
     font-size: small;
-    margin: 3px 1px 0px 2px;
+    margin: 3px 1px 0 2px;
     
     & .ui-selectcheckboxmenu-token-label {
         padding: 0 1.1em 0 .1em
@@ -669,8 +678,8 @@ li.ui-menuitem a.ui-state-hover {
 }
 
 .customColorPicker > button {
-    width: 0px;
-    height: 0px;
+    width: 0;
+    height: 0;
     border: none !important;
 }
 
@@ -687,7 +696,7 @@ li.ui-menuitem a.ui-state-hover {
 
 .availableCubeNames {
     display: inline-block;
-    margin: 10px 20px 0px 0px;
+    margin: 10px 20px 0 0;
     background-color: #555;
     padding: 4px 10px;
     border-radius: 10px;
