@@ -1,6 +1,6 @@
 {
   "provider-url": "${KEYCLOAK_REALM_PUBLIC_URI}",
-  "ssl-required": "none",
+  "ssl-required": "NONE",
     "verify-token-audience": true,
     "use-resource-role-mappings": true,
   "client-id": "agnos",

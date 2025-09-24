@@ -39,14 +39,8 @@
         <extension module="org.wildfly.extension.security.manager"/>
         <extension module="org.wildfly.extension.undertow"/>
     </extensions>
-
-    <!--
     <system-properties>
-        <property name="jboss.http.frontendScheme" value="https"/>
-        <property name="jboss.http.frontendPort" value="443"/>
-        <property name="jboss.http.frontendHost" value="databaseteszt.euripid.eu"/>
     </system-properties>
-    -->
     <management>
         <audit-log>
             <formatters>
@@ -80,7 +74,7 @@
     <profile>
         <subsystem xmlns="urn:jboss:domain:logging:8.0">
             <console-handler name="CONSOLE">
-                <level name="DEBUG"/>
+                <level name="INFO"/>
                 <formatter>
                     <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
@@ -350,7 +344,16 @@
                 </server-ssl-contexts>
             </tls>
         </subsystem>
-        <subsystem xmlns="urn:wildfly:elytron-oidc-client:1.0"/>
+
+
+<subsystem xmlns="urn:wildfly:elytron-oidc-client:1.0">
+    <secure-deployment name="AgnosReportManager.war">
+        <provider-url>https://databaseteszt.euripid.eu/a_keycloak/auth/realms/AgnosRealm/</provider-url>
+        <client-id>agnos</client-id>
+        <redirect-rewrite-rule name="^http.*$" replacement="https://databaseteszt.euripid.eu/a_manager"></redirect-rewrite-rule>
+    </secure-deployment>
+</subsystem>
+
         <subsystem xmlns="urn:wildfly:health:1.0" security-enabled="false"/>
         <subsystem xmlns="urn:jboss:domain:infinispan:13.0">
             <cache-container name="ejb" default-cache="passivation" marshaller="PROTOSTREAM" aliases="sfsb" modules="org.wildfly.clustering.ejb.infinispan">
@@ -467,8 +470,8 @@
         <subsystem xmlns="urn:jboss:domain:undertow:12.0" default-server="default-server" default-virtual-host="default-host" default-servlet-container="default" default-security-domain="other" statistics-enabled="${wildfly.undertow.statistics-enabled:${wildfly.statistics-enabled:false}}">
             <buffer-cache name="default"/>
             <server name="default-server">
-                <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true" proxy-address-forwarding="true" secure="true"/>
-                <https-listener name="https" socket-binding="https" ssl-context="applicationSSC" enable-http2="true" proxy-address-forwarding="true"/>
+                <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true"/>
+                <https-listener name="https" socket-binding="https" ssl-context="applicationSSC" enable-http2="true"/>
                 <host name="default-host" alias="localhost">
                     <location name="/" handler="welcome-content"/>
                     <http-invoker http-authentication-factory="application-http-authentication"/>

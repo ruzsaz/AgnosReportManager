@@ -97,7 +97,6 @@ public class ReportEditorBean implements Serializable {
         this.roles = getAllRoles();
         roles.sort(null);
         this.deleteReport = false;
-        Map<String, Object> parameters = FacesContext.getCurrentInstance().getExternalContext().getFlash();
         this.cubeList = CubeService.getCubeList(cubeServerUri);
         this.keywordList = (new KeywordsRepository()).findAll();
         keywordList.sort(Comparator.comparing(Keyword::getName));
@@ -111,17 +110,16 @@ public class ReportEditorBean implements Serializable {
         this.availableDictionaries = new ArrayList<>(ResourceFilesService.getResourceFilesSet(dictionaryDirectory));
         availableDictionaries.sort(null);
 
+        Object reportParameter = FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("reportName");
 
-        if (parameters.get("reportName") == null) { // Ha új reportról van szó
+        if (reportParameter == null) { // Ha új reportról van szó
             this.report = new Report();
-            this.report.addLanguage("");            
-            this.report.setCubes(new ArrayList<>(2));
+            report.addLanguage("");
+            report.setCubes(new ArrayList<>(2));
         } else { // Ha régiről
-            String reportName = parameters.get("reportName").toString();
+            String reportName = (String) reportParameter;
             Optional<Report> optReport = (new ReportRepository()).findByName(reportName);
-            if (optReport.isPresent()) {
-                this.report = optReport.get();                
-            }
+            optReport.ifPresent(value -> this.report = value);
         }
         initAvailableDimensionNames();
         initAvailableIndicatorNames();

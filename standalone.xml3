@@ -39,14 +39,12 @@
         <extension module="org.wildfly.extension.security.manager"/>
         <extension module="org.wildfly.extension.undertow"/>
     </extensions>
-
-    <!--
     <system-properties>
+        <!-- Add your frontend URL properties here -->
         <property name="jboss.http.frontendScheme" value="https"/>
         <property name="jboss.http.frontendPort" value="443"/>
         <property name="jboss.http.frontendHost" value="databaseteszt.euripid.eu"/>
     </system-properties>
-    -->
     <management>
         <audit-log>
             <formatters>
@@ -80,7 +78,7 @@
     <profile>
         <subsystem xmlns="urn:jboss:domain:logging:8.0">
             <console-handler name="CONSOLE">
-                <level name="DEBUG"/>
+                <level name="INFO"/>
                 <formatter>
                     <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
@@ -467,13 +465,21 @@
         <subsystem xmlns="urn:jboss:domain:undertow:12.0" default-server="default-server" default-virtual-host="default-host" default-servlet-container="default" default-security-domain="other" statistics-enabled="${wildfly.undertow.statistics-enabled:${wildfly.statistics-enabled:false}}">
             <buffer-cache name="default"/>
             <server name="default-server">
-                <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true" proxy-address-forwarding="true" secure="true"/>
+                <http-listener name="default" socket-binding="http" redirect-socket="https"
+                               enable-http2="true"
+                               proxy-address-forwarding="true"
+                               proxy-protocol="false"/>
                 <https-listener name="https" socket-binding="https" ssl-context="applicationSSC" enable-http2="true" proxy-address-forwarding="true"/>
                 <host name="default-host" alias="localhost">
                     <location name="/" handler="welcome-content"/>
                     <http-invoker http-authentication-factory="application-http-authentication"/>
+                    <filter-ref name="proxy-peer"/>
                 </host>
             </server>
+                <filters>
+        <filter name="proxy-peer" class-name="io.undertow.server.handlers.ProxyPeerAddressHandler" module="io.undertow.core"/>
+    </filters>
+
             <servlet-container name="default">
                 <jsp-config/>
                 <websockets/>

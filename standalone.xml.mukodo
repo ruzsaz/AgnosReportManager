@@ -39,14 +39,11 @@
         <extension module="org.wildfly.extension.security.manager"/>
         <extension module="org.wildfly.extension.undertow"/>
     </extensions>
-
-    <!--
     <system-properties>
         <property name="jboss.http.frontendScheme" value="https"/>
         <property name="jboss.http.frontendPort" value="443"/>
         <property name="jboss.http.frontendHost" value="databaseteszt.euripid.eu"/>
     </system-properties>
-    -->
     <management>
         <audit-log>
             <formatters>
@@ -105,6 +102,23 @@
             <logger category="sun.rmi">
                 <level name="WARN"/>
             </logger>
+
+            <logger category="org.wildfly.security.http.oidc">
+                <level name="DEBUG"/>
+            </logger>
+            <logger category="org.wildfly.extension.undertow">
+                <level name="DEBUG"/>
+            </logger>
+            <logger category="org.wildfly.extension.elytron-oidc-client">
+                <level name="DEBUG"/>
+            </logger>
+            <logger category="io.undertow.request">
+                <level name="DEBUG"/>
+            </logger>
+            <logger category="org.wildfly.elytron.oidc">
+                <level name="TRACE"/>
+            </logger>
+
             <root-logger>
                 <level name="INFO"/>
                 <handlers>

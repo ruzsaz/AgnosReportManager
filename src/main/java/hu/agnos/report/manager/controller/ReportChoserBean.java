@@ -67,8 +67,7 @@ public class ReportChoserBean implements Serializable {
 
     public void setOldReport() {
         FacesContext context = FacesContext.getCurrentInstance();
-        Flash flash = context.getExternalContext().getFlash();
-        flash.put("reportName", selectedReport.getName());
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("reportName", selectedReport.getName());
         FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(context, null, "reportEditor.xhtml?faces-redirect=true");
     }
 
@@ -79,8 +78,8 @@ public class ReportChoserBean implements Serializable {
 
     public String sendRefreshCubesRequest() {
         try {
-            HttpPost CubesRefreshRequest = new HttpPost(new URL((new URL(cubeServerUri)).toExternalForm() + "/refresh").toURI());
-            LOGGER.info("Refresh the cube servers.");
+            HttpPost CubesRefreshRequest = new HttpPost(new URL((new URL(cubeServerUri)).toExternalForm() + "/restart").toURI());
+            LOGGER.info("Restart the cube servers.");
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
                 httpClient.execute(CubesRefreshRequest);
             }
