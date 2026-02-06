@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
 import javax.faces.view.ViewScoped;
@@ -22,6 +23,7 @@ import lombok.Setter;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.primefaces.PrimeFaces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.microprofile.config.Config;
@@ -68,7 +70,7 @@ public class ReportChoserBean implements Serializable {
     public void setOldReport() {
         FacesContext context = FacesContext.getCurrentInstance();
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("reportName", selectedReport.getName());
-        FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(context, null, "reportEditor.xhtml?faces-redirect=true");
+        //FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(context, null, "reportEditor.xhtml?faces-redirect=true");
     }
 
     public void createNewReport() {

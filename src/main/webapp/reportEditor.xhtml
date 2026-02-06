@@ -31,8 +31,8 @@
 
 
         <h:form id="reportForm" rendered="#{!isHacked}">
-
-            <p:fieldset legend="#{reportEditorBean.deleteReport ? 'Are you sure?' : 'Report'}" toggleable="false">
+            <h:panelGroup id="formBody" layout="block">
+            <p:fieldset id="reportFormContent" legend="#{reportEditorBean.deleteReport ? 'Are you sure?' : 'Report'}" toggleable="false">
 
                 <p:panelGrid style="width:100%" styleClass="customBorder">  
 
@@ -84,9 +84,9 @@
                                 ajax="true"
                                 rendered="true"
                                 disabled="false"
-                                process=":reportForm"
+                                process="@this"
                                 value="#{reportEditorBean.deleteReport ? 'Undelete' : 'Delete report'}"
-                                update=":reportForm"
+                                update=":reportForm:formBody"
                                 action="#{reportEditorBean.toggleDelete}"
                                 styleClass="deleteReportButton">
                             </p:commandButton>
@@ -158,7 +158,7 @@
                                     title="Cube the report based on">
                                     <f:selectItem itemLabel="-- chose a cube --" itemValue="" itemDisabled="false" noSelectionOption="true"/>
                                     <f:selectItems value="#{reportEditorBean.availableCubeNames}" var="cubeName" itemLabel="#{cubeName}" itemValue="#{cubeName}"/>
-                                    <p:ajax process=":reportForm" listener="#{reportEditorBean.setCube(loop.index)}" update=":reportForm" />
+                                    <p:ajax process=":reportForm" listener="#{reportEditorBean.setCube(loop.index)}" update=":reportForm:formBody" />
                                 </p:selectOneMenu>           
                                 <br />
                                 <br />
@@ -198,7 +198,7 @@
                                     process=":reportForm"
                                     icon="ui-icon-minus"
                                     ajax="true"
-                                    update=":reportForm"
+                                    update=":reportForm:formBody"
                                     actionListener="#{reportEditorBean.removeCube(loop.index)}"
                                     title="Delete this base cube"/>
                                 <br />
@@ -249,7 +249,7 @@
                                     disabled="#{repLoop.index eq reportEditorBean.editedLang}"
                                     process=":reportForm"
                                     value="#{repLoop.index eq 0 ? 'Default' : (label.lang eq '' ? '???' : label.lang)}"
-                                    update=":reportForm"
+                                    update=":reportForm:formBody"
                                     actionListener="#{reportEditorBean.selectLang(repLoop.index)}"
                                     oncomplete="trimDecimalPlaces();"
                                     styleClass="langbutton">
@@ -262,7 +262,7 @@
                                 process=":reportForm"
                                 icon="ui-icon-minus"
                                 ajax="true"
-                                update=":reportForm"
+                                update=":reportForm:formBody"
                                 actionListener="#{reportEditorBean.removeEditedLanguage()}"
                                 oncomplete="trimDecimalPlaces();"
                                 title="Delete language '#{reportEditorBean.report.labels[reportEditorBean.editedLang].lang}'"/>
@@ -276,7 +276,7 @@
                     process=":reportForm"
                     icon="ui-icon-plus"
                     ajax="true"
-                    update=":reportForm"
+                    update=":reportForm:formBody"
                     actionListener="#{reportEditorBean.addLanguage()}"
                     oncomplete="trimDecimalPlaces();"
                     title="Add a new language"/>  
@@ -1118,9 +1118,9 @@
                     ajax="false"
                     rendered="true"
                     disabled="false"
-                    process=":reportForm"
+                    process="@this"
                     value="Cancel"
-                    update=":reportForm"
+                    update=":reportForm:formBody"
                     action="#{reportEditorBean.cancel}"
                     style="float: left"
                     styleClass="cancelButton">
@@ -1132,13 +1132,13 @@
                     disabled="false"
                     process=":reportForm"
                     value="Save"
-                    update=":reportForm"
+                    update=":reportForm:formBody"
                     action="#{reportEditorBean.save}"
                     styleClass="saveButton">
                 </p:commandButton>
 
             </div>
-
+        </h:panelGroup>
         </h:form>
     </h:body>
 </html>

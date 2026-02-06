@@ -54,7 +54,7 @@
                     currentPageReportTemplate="{startRecord}-{endRecord}, total {totalRecords} reports"
                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
 
-                    <p:ajax event="rowSelect" listener="#{reportChoserBean.setOldReport()}" process="existingReportsTable" />        
+                    <p:ajax event="rowSelect" listener="#{reportChoserBean.setOldReport()}" process="existingReportsTable" oncomplete="window.location.href='reportEditor.xhtml';" />
 
                     <p:column            
                         headerText="Report"
