@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import lombok.Getter;
@@ -110,20 +111,32 @@ public class ReportEditorBean implements Serializable {
         this.availableDictionaries = new ArrayList<>(ResourceFilesService.getResourceFilesSet(dictionaryDirectory));
         availableDictionaries.sort(null);
 
-        Object reportParameter = FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("reportName");
-
-        if (reportParameter == null) { // Ha új reportról van szó
-            this.report = new Report();
-            report.addLanguage("");
-            report.setCubes(new ArrayList<>(2));
-        } else { // Ha régiről
-            String reportName = (String) reportParameter;
-            Optional<Report> optReport = (new ReportRepository()).findByName(reportName);
-            optReport.ifPresent(value -> this.report = value);
+        ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+        String reportName = externalContext.getRequestParameterMap().get("reportName");
+        if (reportName == null || reportName.isBlank()) {
+            Object sessionValue = externalContext.getSessionMap().get("reportName");
+            if (sessionValue instanceof String sessionReportName) {
+                reportName = sessionReportName;
+            }
         }
+
+        if (reportName == null || reportName.isBlank()) { // Ha új reportról van szó
+            this.report = createEmptyReport();
+        } else { // Ha régiről
+            Optional<Report> optReport = (new ReportRepository()).findByName(reportName);
+            this.report = optReport.orElseGet(this::createEmptyReport);
+        }
+        externalContext.getSessionMap().remove("reportName");
         initAvailableDimensionNames();
         initAvailableIndicatorNames();
         addIfEmpty();
+    }
+
+    private Report createEmptyReport() {
+        Report newReport = new Report();
+        newReport.addLanguage("");
+        newReport.setCubes(new ArrayList<>(2));
+        return newReport;
     }
 
     public void onCubeChange() {

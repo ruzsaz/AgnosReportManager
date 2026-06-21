@@ -1,7 +1,6 @@
 package hu.agnos.report.manager.controller;
 
 import hu.agnos.cube.meta.resultDto.CubeList;
-import hu.agnos.report.entity.Cube;
 import hu.agnos.report.entity.Report;
 import hu.agnos.report.manager.service.CubeService;
 import hu.agnos.report.repository.ReportRepository;
@@ -10,12 +9,13 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.context.Flash;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 import lombok.Getter;
@@ -68,13 +68,22 @@ public class ReportChoserBean implements Serializable {
     }
 
     public void setOldReport() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("reportName", selectedReport.getName());
-        //FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(context, null, "reportEditor.xhtml?faces-redirect=true");
+        if (selectedReport == null) {
+            return;
+        }
+
+        ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+        externalContext.getSessionMap().put("reportName", selectedReport.getName());
+
+        String nextUrl = externalContext.getRequestContextPath()
+                + "/reportEditor.xhtml?reportName="
+                + URLEncoder.encode(selectedReport.getName(), StandardCharsets.UTF_8);
+        PrimeFaces.current().ajax().addCallbackParam("nextUrl", nextUrl);
     }
 
     public void createNewReport() {
         FacesContext context = FacesContext.getCurrentInstance();
+        context.getExternalContext().getSessionMap().remove("reportName");
         FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(context, null, "reportEditor.xhtml?faces-redirect=true");
     }
 

@@ -12,6 +12,6 @@
   "turn-off-change-session-id-on-login": "true",
   "ignore-oauth-query-parameter": "true",
   "redirect-rewrite-rules" : {
-    "/AgnosReportManager/(.*)$" : "/a_manager/$1"
+    "zolika.*" : "/analysis/manager/main/main.xhtml?faces-redirect=true"
   }
 }

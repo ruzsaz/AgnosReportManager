@@ -1,0 +1,6 @@
+// Reference only. This file is not used by the build/runtime.
+// Previous redirect rule kept here because comments are invalid in JSON.
+"redirect-rewrite-rules" : {
+  // "zolika.*" : "/analysis/manager/main/main.xhtml?faces-redirect=true"
+  "/AgnosReportManager/(.*)$" : "/a_manager/$1"
+}
